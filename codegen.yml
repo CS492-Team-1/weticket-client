@@ -1,0 +1,13 @@
+overwrite: true
+schema:
+  - https://weticket-server.herokuapp.com/graphql
+documents: './src/**/!(*.local).{ts,tsx}'
+generates:
+  src/utils/client.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
+  src/utils/apollo-helpers.ts:
+    plugins:
+      - 'typescript-apollo-client-helpers'
