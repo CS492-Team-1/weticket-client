@@ -112,7 +112,6 @@ export type Reservation = {
   __typename?: 'Reservation';
   id: Scalars['String'];
   preemptedAt?: Maybe<Scalars['DateTime']>;
-  reservedAt?: Maybe<Scalars['DateTime']>;
   seat: Scalars['Float'];
   status: ReservationStatus;
   time: Scalars['DateTime'];
@@ -195,6 +194,34 @@ export type RegisterMutation = (
   ) }
 );
 
+export type CancelReservationMutationVariables = Exact<{
+  input: CancelReservationInput;
+}>;
+
+
+export type CancelReservationMutation = (
+  { __typename?: 'Mutation' }
+  & { cancelReservation: (
+    { __typename?: 'CancelReservationOutput' }
+    & Pick<CancelReservationOutput, 'ok' | 'error'>
+  ) }
+);
+
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = (
+  { __typename?: 'Query' }
+  & { me: (
+    { __typename?: 'User' }
+    & Pick<User, 'username'>
+    & { reservations: Array<(
+      { __typename?: 'Reservation' }
+      & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>
+    )> }
+  ) }
+);
+
 
 export const LoginDocument = gql`
     mutation login($input: LoginInput!) {
@@ -265,3 +292,77 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const CancelReservationDocument = gql`
+    mutation cancelReservation($input: CancelReservationInput!) {
+  cancelReservation(input: $input) {
+    ok
+    error
+  }
+}
+    `;
+export type CancelReservationMutationFn = Apollo.MutationFunction<CancelReservationMutation, CancelReservationMutationVariables>;
+
+/**
+ * __useCancelReservationMutation__
+ *
+ * To run a mutation, you first call `useCancelReservationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelReservationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelReservationMutation, { data, loading, error }] = useCancelReservationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCancelReservationMutation(baseOptions?: Apollo.MutationHookOptions<CancelReservationMutation, CancelReservationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CancelReservationMutation, CancelReservationMutationVariables>(CancelReservationDocument, options);
+      }
+export type CancelReservationMutationHookResult = ReturnType<typeof useCancelReservationMutation>;
+export type CancelReservationMutationResult = Apollo.MutationResult<CancelReservationMutation>;
+export type CancelReservationMutationOptions = Apollo.BaseMutationOptions<CancelReservationMutation, CancelReservationMutationVariables>;
+export const MeDocument = gql`
+    query me {
+  me {
+    username
+    reservations {
+      id
+      time
+      status
+      preemptedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useMeQuery__
+ *
+ * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+      }
+export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+        }
+export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
+export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
+export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
