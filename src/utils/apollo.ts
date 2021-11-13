@@ -10,7 +10,6 @@ import { accessTokenVar, cache } from './cache';
 
 const httpLink = new HttpLink({
   uri: 'https://weticket-server.herokuapp.com/graphql',
-  credentials: 'include',
 });
 
 const wsClient = new SubscriptionClient(

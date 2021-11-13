@@ -1,18 +1,18 @@
 import React from 'react';
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
-import { Login, Reservation, ReservationConfirm, Reservations } from './pages';
+import { useReactiveVar } from '@apollo/client';
+
+import { LoggedInRoutes, LoggedOutRoutes } from './routes';
+import { accessTokenVar } from './utils/cache';
 
 export const App: React.FC = () => {
+  const accessToken = useReactiveVar(accessTokenVar);
+  const loggedIn = !!accessToken;
+
   return (
     <BrowserRouter>
-      <Switch>
-        <Route path="/login" component={Login} />
-        <Route path="/reservation/:time" component={Reservation} />
-        <Route path="/reservation_confirm/:id" component={ReservationConfirm} />
-        <Route path="/reservations" component={Reservations} />
-        <Redirect from="*" to="/login" />
-      </Switch>
+      {loggedIn ? <LoggedInRoutes /> : <LoggedOutRoutes />}
     </BrowserRouter>
   );
 };
