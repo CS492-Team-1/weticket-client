@@ -19,6 +19,9 @@ gql`
   }
 `;
 
+
+?????
+
 //TODO : prop type 정의
 type ReservationPresenterProps = {};
 
