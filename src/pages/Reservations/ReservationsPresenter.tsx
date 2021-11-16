@@ -28,12 +28,16 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
     const { data, loading } = useMeQuery();
     const reservations = data?.me.reservations || [];
 
-    return (
+    const result = loading ? (
+      <SContainer>loading</SContainer>
+    ) : (
       <SContainer>
         Reservations
         <div>{JSON.stringify(reservations)}</div>
       </SContainer>
     );
+
+    return result;
   };
 
 const SContainer = styled.div`

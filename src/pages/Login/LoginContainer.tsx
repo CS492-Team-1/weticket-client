@@ -26,7 +26,6 @@ gql`
 
 export const LoginContainer: React.FC = () => {
   const history = useHistory();
-
   const [loginMutation, { loading: loginLoading }] = useLoginMutation();
   const [registerMutation, { loading: registerLoading }] =
     useRegisterMutation();
