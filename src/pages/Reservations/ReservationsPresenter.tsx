@@ -29,7 +29,9 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
     const reservations = data?.me.reservations || [];
 
     const result = loading ? (
-      <SContainer>loading</SContainer>
+      <SContainer>
+        <h1>loading</h1>
+      </SContainer>
     ) : (
       <SContainer>
         Reservations
