@@ -207,6 +207,23 @@ export type CancelReservationMutation = (
   ) }
 );
 
+export type ReserveSeatMutationVariables = Exact<{
+  input: ReserveSeatInput;
+}>;
+
+
+export type ReserveSeatMutation = (
+  { __typename?: 'Mutation' }
+  & { reserveSeat: (
+    { __typename?: 'ReserveSeatOutput' }
+    & Pick<ReserveSeatOutput, 'ok' | 'error'>
+    & { reservation?: Maybe<(
+      { __typename?: 'Reservation' }
+      & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>
+    )> }
+  ) }
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -326,6 +343,46 @@ export function useCancelReservationMutation(baseOptions?: Apollo.MutationHookOp
 export type CancelReservationMutationHookResult = ReturnType<typeof useCancelReservationMutation>;
 export type CancelReservationMutationResult = Apollo.MutationResult<CancelReservationMutation>;
 export type CancelReservationMutationOptions = Apollo.BaseMutationOptions<CancelReservationMutation, CancelReservationMutationVariables>;
+export const ReserveSeatDocument = gql`
+    mutation reserveSeat($input: ReserveSeatInput!) {
+  reserveSeat(input: $input) {
+    ok
+    error
+    reservation {
+      id
+      time
+      status
+      preemptedAt
+    }
+  }
+}
+    `;
+export type ReserveSeatMutationFn = Apollo.MutationFunction<ReserveSeatMutation, ReserveSeatMutationVariables>;
+
+/**
+ * __useReserveSeatMutation__
+ *
+ * To run a mutation, you first call `useReserveSeatMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReserveSeatMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [reserveSeatMutation, { data, loading, error }] = useReserveSeatMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useReserveSeatMutation(baseOptions?: Apollo.MutationHookOptions<ReserveSeatMutation, ReserveSeatMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ReserveSeatMutation, ReserveSeatMutationVariables>(ReserveSeatDocument, options);
+      }
+export type ReserveSeatMutationHookResult = ReturnType<typeof useReserveSeatMutation>;
+export type ReserveSeatMutationResult = Apollo.MutationResult<ReserveSeatMutation>;
+export type ReserveSeatMutationOptions = Apollo.BaseMutationOptions<ReserveSeatMutation, ReserveSeatMutationVariables>;
 export const MeDocument = gql`
     query me {
   me {
