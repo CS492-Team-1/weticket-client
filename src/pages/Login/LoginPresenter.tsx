@@ -14,9 +14,9 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login }) => {
   //
   return (
     <SContainer>
-      <MTitle>WeTicket</MTitle>
+      <Title>WeTicket</Title>
       <LogInContainer>
-        <MSubTitle>LogIn</MSubTitle>
+        <SubTitle>LogIn</SubTitle>
         <HorizonLine/>
         <br/>
         <LoginForm>
@@ -52,21 +52,21 @@ const SContainer = styled.div`
 
 `;
 
-const MTitle = styled.h1`
+const Title = styled.h1`
   display: flex;
   color: ${colors.white};
   font-size: 30px;
   font-weight: 600;
-  margin-bottom: 3vh;
+  margin-bottom: 20px;
 `;
 
-const MSubTitle = styled.h2`
+const SubTitle = styled.h2`
   display: flex;
   color: ${colors.black};
   font-size: 18px;
   font-weight: 500;
-  margin-top: 5vh;
-  margin-bottom: 2vh;
+  margin-top: 30px;
+  margin-bottom: 10px;
 `;
 
 
@@ -75,14 +75,14 @@ const LogInContainer = styled.div`
   flex-direction: column;
   justify-items: center;
   align-items: center;
-  width: 70vw;
-  height: 60vh;
+  width: 280px;
+  height: 350px;
   border-radius: 15px;
   background-color: ${colors.white};
 `;
 
 const HorizonLine = styled.hr`
-  width: 60vw;
+  width: 220px;
   display: flex;
   border-top: 1px solid ${colors.black};
 `;
@@ -91,16 +91,16 @@ const LoginForm = styled.form`
   border-radius: 15px;
   border-color: none;
   border-style: none;
-  width: 50vw;
+  width: 230px;
 `;
 
 const Button = styled.button`
   font-weight: 700;
   border-radius: 15px;
   border-style: none;
-  width: 50vw;
-  height: 5vh;
-  margin: 1vh;
+  width: 230px;
+  height: 30px;
+  margin: 6px;
 `;
 
 const LoginButton = styled(Button)`
@@ -123,7 +123,7 @@ const Messages = styled.span`
   color: ${colors.primary};
   font-size: 15px;
   font-weight: 500;
-  margin-bottom: 1vh
+  margin-bottom: 6px
 `;
 
 
@@ -131,10 +131,10 @@ const InputBox = styled.input`
   border-radius: 15px;
   border-color: none;
   border-style: none;
-  width: 50vw;
+  width: 230px;
   text-align: center;
-  height: 5vh;
-  margin: 0.5vh;
+  height: 30px;
+  margin: 3px;
   border-style: solid;
   border-width: thin;
 `;
