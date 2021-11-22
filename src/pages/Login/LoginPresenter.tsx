@@ -18,14 +18,10 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login }) => {
       <LogInContainer>
         <SubTitle>LogIn</SubTitle>
         <HorizonLine/>
-        <br/>
         <LoginForm>
           <IDBox></IDBox>
           <PwBox></PwBox>
-          <br/>
           <LoginButton>로그인</LoginButton>
-          <br/>
-          <br/>
           <Messages>계정이 없으신가요?</Messages>
           <RegisterButton>회원가입</RegisterButton>
         </LoginForm>
@@ -37,7 +33,6 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login }) => {
 
 const SContainer = styled.div`
   display: flex;
-  flex: 1;
   flex-direction: column;
   justify-items: center;
   justify-content: center;
@@ -85,6 +80,7 @@ const HorizonLine = styled.hr`
   width: 220px;
   display: flex;
   border-top: 1px solid ${colors.black};
+  margin-bottom: 20px;
 `;
 
 const LoginForm = styled.form`
@@ -108,6 +104,7 @@ const LoginButton = styled(Button)`
   color: ${colors.white};
   box-shadow: none;
   background-color: ${colors.primary};
+  margin-bottom :20px;
 `;
 
 const RegisterButton = styled(Button)`
@@ -120,10 +117,10 @@ const RegisterButton = styled(Button)`
 `;
 
 const Messages = styled.span`
-  color: ${colors.primary};
+  color: ${colors.black};
   font-size: 15px;
   font-weight: 500;
-  margin-bottom: 6px
+  margin: 6px;
 `;
 
 
