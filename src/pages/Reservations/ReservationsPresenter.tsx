@@ -4,6 +4,7 @@ import { colors } from '../../assets/styles/colors';
 import { gql } from '@apollo/client';
 
 import { Reservation, ReservationStatus, useMeQuery } from '../../utils/client';
+import { Spinner } from './Loading';
 
 gql`
   query me {
@@ -83,7 +84,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
       return result;
     };
 
-    const loadingScreen = <SContainer>loading</SContainer>;
+    const loadingScreen = <Spinner />;
 
     const loadedScreen = (
       <SContainer>
