@@ -21,87 +21,92 @@ gql`
 `;
 
 //TODO : prop type 정의
-type ReservationPresenterProps = {};
+type ReservationPresenterProps = {
+  cancelReservation: (reservationId: string) => Promise<void>;
+  reserveSeat: (reservationId: string) => Promise<void>;
+};
 
-export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
-  () => {
-    const { data, loading } = useMeQuery();
-    const [clicked, setClicked] = useState('');
-    const reservations = data?.me.reservations || [];
-    const preempted = reservations.filter(
-      reservation => reservation.status === ReservationStatus.Preempted,
-    );
-    const reserved = reservations.filter(
-      reservation => reservation.status === ReservationStatus.Reserved,
-    );
+export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
+  cancelReservation,
+  reserveSeat,
+}) => {
+  const { data, loading } = useMeQuery();
+  const [clicked, setClicked] = useState('');
+  const reservations = data?.me.reservations || [];
+  const preempted = reservations.filter(
+    reservation => reservation.status === ReservationStatus.Preempted,
+  );
+  const reserved = reservations.filter(
+    reservation => reservation.status === ReservationStatus.Reserved,
+  );
 
-    const timeParser = (
-      reservation: {
-        __typename?: 'Reservation' | undefined;
-      } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
-    ) => {
-      let result: string = reservation.time;
-      result = result.replace('T', ' ');
-      result = result.substring(0, result.lastIndexOf(':'));
-      return result;
-    };
-
-    const ReservationBlock = (
-      reservation: {
-        __typename?: 'Reservation' | undefined;
-      } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
-    ) => {
-      const result = reservation.__typename === 'Reservation' && (
-        <div onClick={() => setClicked(clicked => reservation.id)}>
-          <BlockLid>
-            <Text className="title">공연명</Text>
-          </BlockLid>
-          <BlockBottom isClicked={clicked === reservation.id}>
-            <Text className="location">장소</Text>
-            <Text className="date">
-              시각
-              <br />
-              {timeParser(reservation)}
-            </Text>
-            <VerticalLine />
-            {reservation.status === ReservationStatus.Preempted
-              ? clicked === reservation.id && (
-                  <>
-                    <Text className="seat">선택 좌석</Text>
-                    <Button className="reservation">예약 확정</Button>
-                    <Button className="cancelPreempted">예약 취소</Button>
-                  </>
-                )
-              : clicked === reservation.id && (
-                  <>
-                    <Text className="seat">선택 좌석</Text>
-                    <Button className="cancelReserved">예약 취소</Button>
-                  </>
-                )}
-          </BlockBottom>
-        </div>
-      );
-      return result;
-    };
-
-    const loadingScreen = <Spinner />;
-
-    const loadedScreen = (
-      <SContainer>
-        {preempted.length !== 0 && '예약 미완료'}
-        {preempted.map(reservation => ReservationBlock(reservation))}
-        {reserved.length !== 0 && '예약 완료'}
-        {reserved.map(reservation => ReservationBlock(reservation))}
-      </SContainer>
-    );
-
-    return (
-      <>
-        <Header>WeTicket</Header>
-        {loading ? loadingScreen : loadedScreen}
-      </>
-    );
+  const timeParser = (
+    reservation: {
+      __typename?: 'Reservation' | undefined;
+    } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
+  ) => {
+    let result: string = reservation.time;
+    result = result.replace('T', ' ');
+    result = result.substring(0, result.lastIndexOf(':'));
+    return result;
   };
+
+  const ReservationBlock = (
+    reservation: {
+      __typename?: 'Reservation' | undefined;
+    } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
+  ) => {
+    const result = reservation.__typename === 'Reservation' && (
+      <div onClick={() => setClicked(clicked => reservation.id)}>
+        <BlockLid>
+          <Text className="title">공연명</Text>
+        </BlockLid>
+        <BlockBottom isClicked={clicked === reservation.id}>
+          <Text className="location">장소</Text>
+          <Text className="date">
+            시각
+            <br />
+            {timeParser(reservation)}
+          </Text>
+          <VerticalLine />
+          {reservation.status === ReservationStatus.Preempted
+            ? clicked === reservation.id && (
+                <>
+                  <Text className="seat">선택 좌석</Text>
+                  <Button className="reservation">예약 확정</Button>
+                  <Button className="cancelPreempted">예약 취소</Button>
+                </>
+              )
+            : clicked === reservation.id && (
+                <>
+                  <Text className="seat">선택 좌석</Text>
+                  <Button className="cancelReserved">예약 취소</Button>
+                </>
+              )}
+        </BlockBottom>
+      </div>
+    );
+    return result;
+  };
+
+  const loadingScreen = <Spinner />;
+
+  const loadedScreen = (
+    <SContainer>
+      {preempted.length !== 0 && '예약 미완료'}
+      {preempted.map(reservation => ReservationBlock(reservation))}
+      {reserved.length !== 0 && '예약 완료'}
+      {reserved.map(reservation => ReservationBlock(reservation))}
+    </SContainer>
+  );
+
+  return (
+    <>
+      <Header>WeTicket</Header>
+      {loading ? loadingScreen : loadedScreen}
+    </>
+  );
+};
 
 const BlockLid = styled.div`
   width: 304px;
