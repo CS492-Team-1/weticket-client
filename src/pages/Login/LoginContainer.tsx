@@ -95,5 +95,5 @@ export const LoginContainer: React.FC = () => {
   };
 
   //TODO : prop으로 필요한 데이터 및 메소드 전달
-  return <LoginPresenter login={_tempLogin} />;
+  return <LoginPresenter login={login} loginLoading= {loginLoading}/>;
 };
