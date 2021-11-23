@@ -32,7 +32,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
 }) => {
   const { data, loading } = useMeQuery();
   const [clicked, setClicked] = useState('');
-  const reservations = data?.me.reservations || [];
+  const [reservations, setReservations] = useState(data?.me.reservations || []);
   const preempted = reservations.filter(
     reservation => reservation.status === ReservationStatus.Preempted,
   );
@@ -73,14 +73,43 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
             ? clicked === reservation.id && (
                 <>
                   <Text className="seat">선택 좌석</Text>
-                  <Button className="reservation">예약 확정</Button>
-                  <Button className="cancelPreempted">예약 취소</Button>
+                  <Button
+                    className="reservation"
+                    onClick={() => {
+                      setReservations(reservations => reservations);
+                    }}
+                  >
+                    예약 확정
+                  </Button>
+                  <Button
+                    className="cancelPreempted"
+                    onClick={() => {
+                      setReservations(reservations =>
+                        reservations.filter(
+                          reserved => reserved.id !== reservation.id,
+                        ),
+                      );
+                    }}
+                  >
+                    예약 취소
+                  </Button>
                 </>
               )
             : clicked === reservation.id && (
                 <>
                   <Text className="seat">선택 좌석</Text>
-                  <Button className="cancelReserved">예약 취소</Button>
+                  <Button
+                    className="cancelReserved"
+                    onClick={() => {
+                      setReservations(reservations =>
+                        reservations.filter(
+                          reserved => reserved.id !== reservation.id,
+                        ),
+                      );
+                    }}
+                  >
+                    예약 취소
+                  </Button>
                 </>
               )}
         </BlockBottom>
