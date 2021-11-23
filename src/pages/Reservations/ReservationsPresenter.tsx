@@ -35,43 +35,43 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
     );
 
     const timeParser = (
-      json: {
+      reservation: {
         __typename?: 'Reservation' | undefined;
       } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
     ) => {
-      let result: string = json.time;
+      let result: string = reservation.time;
       result = result.replace('T', ' ');
       result = result.substring(0, result.lastIndexOf(':'));
       return result;
     };
 
     const ReservationBlock = (
-      json: {
+      reservation: {
         __typename?: 'Reservation' | undefined;
       } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
     ) => {
-      const result = json.__typename === 'Reservation' && (
-        <div onClick={() => setClicked(clicked => json.id)}>
+      const result = reservation.__typename === 'Reservation' && (
+        <div onClick={() => setClicked(clicked => reservation.id)}>
           <BlockLid>
             <Text className="title">공연명</Text>
           </BlockLid>
-          <BlockBottom isClicked={clicked === json.id}>
+          <BlockBottom isClicked={clicked === reservation.id}>
             <Text className="location">장소</Text>
             <Text className="date">
               시각
               <br />
-              {timeParser(json)}
+              {timeParser(reservation)}
             </Text>
             <VerticalLine />
-            {json.status === ReservationStatus.Preempted
-              ? clicked === json.id && (
+            {reservation.status === ReservationStatus.Preempted
+              ? clicked === reservation.id && (
                   <>
                     <Text className="seat">선택 좌석</Text>
                     <Button className="reservation">예약 확정</Button>
                     <Button className="cancelPreempted">예약 취소</Button>
                   </>
                 )
-              : clicked === json.id && (
+              : clicked === reservation.id && (
                   <>
                     <Text className="seat">선택 좌석</Text>
                     <Button className="cancelReserved">예약 취소</Button>
@@ -89,7 +89,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
       <SContainer>
         {preempted.length !== 0 && '예약 미완료'}
         {preempted.map(reservation => ReservationBlock(reservation))}
-        {reserved.length !== 0 && '예약완료'}
+        {reserved.length !== 0 && '예약 완료'}
         {reserved.map(reservation => ReservationBlock(reservation))}
       </SContainer>
     );
@@ -103,19 +103,20 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
   };
 
 const BlockLid = styled.div`
-  width: 1fr;
+  width: 304px;
   height: 30px;
-  margin-right: 2%;
+  margin-right: 8px;
   border-radius: 6px 6px 0px 0px;
   background: ${colors.primary};
 `;
 
 const BlockBottom = styled.div<{ isClicked: boolean }>`
+  display: flex;
   box-sizing: content-box;
-  width: 1fr;
+  width: 304px;
   height: ${props => (props.isClicked ? '123px' : '38px')};
-  margin-right: 2%;
-  background: #f0f0f0;
+  margin-right: 8px;
+  background: ${colors.gray};
   border-radius: 0px 0px 6px 6px;
 `;
 
@@ -124,7 +125,7 @@ const handleText = (className: string) => {
     case 'location':
       return 'line-height: 12px;padding-top: 4px;';
     case 'date':
-      return 'padding-top: 2px;line-height: 16px;left: 50%;';
+      return 'padding-top: 2px;line-height: 16px;left: 160px;';
     case 'title':
       return `color: ${colors.white};line-height: 14px;margin-top: 8px; font-size:12px`;
     case 'seat':
@@ -134,18 +135,18 @@ const handleText = (className: string) => {
   }
 };
 
-const Text = styled.h1`
+const Text = styled.h1<{ className: string }>`
   position: absolute;
   height: 12px;
-  padding-left: 2%;
+  padding-left: 8px;
   font-size: 10px;
-  ${({ className }) => (className ? handleText(className) : '')}
+  ${props => props.className && handleText(props.className)}
 `;
 
 const VerticalLine = styled.div`
   position: absolute;
   height: 24px;
-  left: 49.5%;
+  left: 160px;
   margin-top: 6px;
   border: 1px solid ${colors.primary_light};
 `;
@@ -154,16 +155,17 @@ const handleButton = (className: string) => {
   switch (className) {
     case 'reservation':
       return `border-color: ${colors.success}; background:${colors.success};
-      margin-left: 2%;
-      width: 45%;`;
+      margin-left: 8px;
+      width: 139px;`;
     case 'cancelPreempted':
       return `border-color: ${colors.error};background:${colors.error}; 
-      right: 4%;
-      width: 45%;`;
+      float:left;
+      margin-left: 12px;
+      width: 139px;`;
     case 'cancelReserved':
       return `border-color: ${colors.error};background:${colors.error};
-      width:92%;
-      margin-left: 2%;
+      width:288px;
+      margin-left: 8px;
       `;
     default:
       return '';
@@ -174,7 +176,7 @@ const Header = styled.div`
   box-sizing: border-box;
   z-index: 5;
   position: fixed;
-  width: 100%;
+  width: 320px;
   height: 40px;
   top: 0px;
   background: ${colors.primary};
@@ -187,9 +189,8 @@ const Header = styled.div`
   color: ${colors.white};
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ className: string }>`
   display: block;
-  position: absolute;
   height: 41px;
   box-sizing: border-box;
   margin-top: 75px;
@@ -197,16 +198,17 @@ const Button = styled.button`
   color: ${colors.white};
   font-weight: bold;
 
-  ${({ className }) => (className ? handleButton(className) : '')}
+  ${props => props.className && handleButton(props.className)}
 `;
 
 const SContainer = styled.div`
   margin-top: 40px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   grid-row-gap: 8px;
   font-style: normal;
   font-weight: bold;
   font-size: 12px;
-  padding-left: 2%;
+  padding-left: 8px;
   padding-top: 8px;
 `;
