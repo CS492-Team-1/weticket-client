@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useForm , SubmitHandler} from 'react-hook-form';
 import { colors } from '../../assets/styles/colors'
 import { Login } from '.';
-import { Spinner } from '../Reservations/Loading';
+import { Spinner } from '../../components'
 
 
 //TODO : prop type 정의
