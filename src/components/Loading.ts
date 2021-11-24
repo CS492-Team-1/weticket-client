@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components';
-import { colors } from '../../assets/styles/colors';
+
+import { colors } from '../assets/styles/colors';
 
 const spinner = keyframes`
 0% {transform: rotate(0deg); }

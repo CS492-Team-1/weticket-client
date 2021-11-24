@@ -4,7 +4,7 @@ import { colors } from '../../assets/styles/colors';
 import { gql } from '@apollo/client';
 
 import { Reservation, ReservationStatus, useMeQuery } from '../../utils/client';
-import { Spinner } from './Loading';
+import { Spinner } from '../../components';
 
 gql`
   query me {
@@ -12,6 +12,7 @@ gql`
       username
       reservations {
         id
+        seats
         time
         status
         preemptedAt
@@ -95,12 +96,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
       </SContainer>
     );
 
-    return (
-      <>
-        <Header>WeTicket</Header>
-        {loading ? loadingScreen : loadedScreen}
-      </>
-    );
+    return loading ? loadingScreen : loadedScreen;
   };
 
 const BlockLid = styled.div`
