@@ -1,35 +1,73 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { colors } from '../../assets/styles/colors';
 import { Login } from '.';
 import { Spinner } from '../../components';
 
 //TODO : prop type 정의
 type LoginPresenterProps = {
-  login: () => void;
+  loginLoading: boolean;
+  login: (username: string, password: string) => void;
 };
 
-export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login }) => {
+type LoginProps = {
+  username: string;
+  password: string;
+};
+
+export const LoginPresenter: React.FC<LoginPresenterProps> = ({
+  login,
+  loginLoading,
+}) => {
   //TODO : react-hook-form 사용하여 로그인, 회원가입 구현
-  //
-  return (
+  //https://react-hook-form.com/get-started#TypeScript
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<LoginProps>();
+
+  const onSubmit: SubmitHandler<LoginProps> = data => {
+    const { username, password } = data;
+    login(username, password);
+    reset({ username: '', password: '' });
+  };
+
+  const LoginPage = (
     <SContainer>
       <Title>WeTicket</Title>
       <LogInContainer>
         <SubTitle>LogIn</SubTitle>
         <HorizonLine />
-        <LoginForm>
-          <IDBox></IDBox>
-          <PwBox></PwBox>
+        <LoginForm onSubmit={handleSubmit(onSubmit)}>
+          <IDBox {...register('username', { required: true })}></IDBox>
+          <ErrorMessages>
+            {errors.username && 'ID를 입력해주세요!'}
+          </ErrorMessages>
+
+          <PwBox {...register('password', { required: true })}></PwBox>
+          <ErrorMessages>
+            {errors.password && '비밀번호를 입력해주세요!'}
+          </ErrorMessages>
+
           <LoginButton>로그인</LoginButton>
+
           <Messages>계정이 없으신가요?</Messages>
           <RegisterButton>회원가입</RegisterButton>
         </LoginForm>
       </LogInContainer>
-      <button onClick={login}>로그인</button>
     </SContainer>
   );
+
+  const loadingPage = (
+    <SContainer>
+      <Spinner />
+    </SContainer>
+  );
+
+  return <>{loginLoading ? loadingPage : LoginPage}</>;
 };
 
 const SContainer = styled.div`
@@ -106,7 +144,7 @@ const LoginButton = styled(Button)`
   margin-bottom: 20px;
 `;
 
-const RegisterButton = styled(Button)`
+const RegisterButton = styled(Button).attrs({ type: 'button' })`
   color: ${colors.black};
   border-color: ${colors.black};
   border-style: solid;
@@ -120,6 +158,11 @@ const Messages = styled.span`
   font-size: 15px;
   font-weight: 500;
   margin: 6px;
+`;
+
+const ErrorMessages = styled(Messages)`
+  color: ${colors.error};
+  margin: 3px;
 `;
 
 const InputBox = styled.input`
