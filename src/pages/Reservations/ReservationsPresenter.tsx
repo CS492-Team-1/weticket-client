@@ -12,6 +12,7 @@ gql`
       username
       reservations {
         id
+        seats
         time
         status
         preemptedAt
