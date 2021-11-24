@@ -9,8 +9,39 @@ import { Stage } from '@inlet/react-pixi';
 
 import { colors } from '../../assets/styles/colors';
 import { Spinner } from '../../components';
+import {
+  useCanceledReservationOnTimeSubscription,
+  useNewReservationOnTimeSubscription,
+  useReservationsLazyQuery,
+} from '../../utils/client';
 import { Rectangle } from './Rectangle';
 import { Viewport } from './Viewport';
+
+gql`
+  query reservations($input: ReservationsInput!) {
+    reservations(input: $input) {
+      ok
+      error
+      reservations {
+        seats
+      }
+    }
+  }
+
+  subscription newReservationOnTime($time: DateTime!) {
+    newReservationOnTime(time: $time) {
+      id
+      seats
+    }
+  }
+
+  subscription canceledReservationOnTime($time: DateTime!) {
+    canceledReservationOnTime(time: $time) {
+      id
+      seats
+    }
+  }
+`;
 
 type SeatLayout = {
   map: {
@@ -35,7 +66,15 @@ type SeatLayout = {
   }[];
 };
 
-export const ReservationPresenter: React.FC = () => {
+type ReservationPresenterProps = {
+  preemptSeat: (seats: string[], time: string) => Promise<void>;
+  loading: boolean;
+};
+
+export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
+  preemptSeat,
+  loading,
+}) => {
   const [windowSize, setWindowSize] = React.useState<{
     width: number;
     height: number;
@@ -47,6 +86,26 @@ export const ReservationPresenter: React.FC = () => {
   const [time, setTime] = React.useState<string>('10:00');
   const [seatLayout, setSeatLayout] = React.useState<SeatLayout>();
   const [selectedSeats, setSelectedSeats] = React.useState<string[]>([]);
+  const [reservedSeats, setReservedSeats] = React.useState<string[]>([]);
+
+  const [reservationsQuery, { loading: reservationsLoading }] =
+    useReservationsLazyQuery({
+      onCompleted: data => {
+        const {
+          reservations: { ok, error, reservations },
+        } = data;
+
+        if (ok && reservations) {
+          const reservationSeats = [];
+          for (const reservation of reservations) {
+            reservationSeats.push(...reservation.seats);
+          }
+          setReservedSeats(reservationSeats);
+        } else if (error) {
+          window.alert(error);
+        }
+      },
+    });
 
   const seatCategory = ['B', 'A', 'C'];
 
@@ -86,6 +145,54 @@ export const ReservationPresenter: React.FC = () => {
       setSelectedSeats(prev => [...prev, seatId].sort());
     }
   };
+
+  const onSubmit = async () => {
+    if (date) {
+      await preemptSeat(
+        selectedSeats,
+        `${date.toISOString().substring(0, 10)} ${time}`,
+      );
+    }
+  };
+
+  useNewReservationOnTimeSubscription({
+    variables: {
+      time: `${(date || tommorrow()).toISOString().substring(0, 10)} ${time}`,
+    },
+    onSubscriptionData: ({ subscriptionData: { data } }) => {
+      if (data?.newReservationOnTime.seats) {
+        setReservedSeats(prev => [...prev, ...data.newReservationOnTime.seats]);
+      }
+    },
+  });
+  useCanceledReservationOnTimeSubscription({
+    variables: {
+      time: `${(date || tommorrow()).toISOString().substring(0, 10)} ${time}`,
+    },
+    onSubscriptionData: ({ subscriptionData: { data } }) => {
+      if (data?.canceledReservationOnTime.seats) {
+        setReservedSeats(prev =>
+          prev.filter(
+            seat => !data.canceledReservationOnTime.seats.includes(seat),
+          ),
+        );
+      }
+    },
+  });
+
+  React.useEffect(() => {
+    if (date) {
+      reservationsQuery({
+        variables: {
+          input: {
+            time: `${date.toISOString().substring(0, 10)} ${time}`,
+          },
+        },
+      });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, time]);
 
   React.useEffect(() => {
     const getSeatLayout = async () => {
@@ -128,7 +235,7 @@ export const ReservationPresenter: React.FC = () => {
         ))}
       </select>
       <InputHeader>좌석선택</InputHeader>
-      {seatLayout ? (
+      {seatLayout && !reservationsLoading ? (
         <SeatWrapper>
           <Stage
             width={Math.min(windowSize.width, seatLayout.map.size.width)}
@@ -157,6 +264,7 @@ export const ReservationPresenter: React.FC = () => {
                       color={rectangleColor}
                       {...rectangle}
                       selected={selectedSeats.includes(seatId)}
+                      disabled={reservedSeats.includes(seatId)}
                       onClick={() => {
                         onSelectSeat(seatId);
                       }}
@@ -174,7 +282,9 @@ export const ReservationPresenter: React.FC = () => {
       )}
       <InputHeader>선택 좌석</InputHeader>
       <SelectedSeats>{selectedSeats.join(', ')}</SelectedSeats>
-      <Submit>예약</Submit>
+      <Submit disabled={loading} onClick={onSubmit}>
+        예약
+      </Submit>
     </Container>
   );
 };
@@ -221,4 +331,8 @@ const Submit = styled.button`
   font-weight: bold;
   border: none;
   margin-top: 100px;
+
+  &:disabled {
+    background-color: ${colors.gray};
+  }
 `;

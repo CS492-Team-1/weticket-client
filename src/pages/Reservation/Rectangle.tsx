@@ -14,6 +14,7 @@ type RectangleProps = {
     height: number;
   };
   selected?: boolean;
+  disabled?: boolean;
   onClick: () => void;
 };
 
@@ -26,12 +27,21 @@ export const Rectangle: React.FC<RectangleProps> = props => {
         size: { width, height },
       } = props;
       g.clear();
-      g.beginFill(color, props.selected ? 1 : 0.3);
+      g.beginFill(
+        props.disabled ? 0xe9e9e9 : color,
+        props.disabled || props.selected ? 1 : 0.3,
+      );
       g.drawRect(x, y, width, height);
       g.endFill();
     },
     [props],
   );
 
-  return <Graphics draw={draw} interactive pointerdown={props.onClick} />;
+  return (
+    <Graphics
+      draw={draw}
+      interactive
+      pointerdown={props.disabled ? undefined : props.onClick}
+    />
+  );
 };
