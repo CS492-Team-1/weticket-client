@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../assets/styles/colors';
 import { gql } from '@apollo/client';
@@ -38,14 +38,20 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
   const preempted = reservations.filter(
     reservation => reservation.status === ReservationStatus.Preempted,
   );
+
   const reserved = reservations.filter(
     reservation => reservation.status === ReservationStatus.Reserved,
   );
 
+  useEffect(() => {
+    setReservations(reservations => data?.me.reservations || []);
+    return;
+  }, [loading]);
+
   const timeParser = (
     reservation: {
       __typename?: 'Reservation' | undefined;
-    } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
+    } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt' | 'seats'>,
   ) => {
     let result: string = reservation.time;
     result = result.replace('T', ' ');
@@ -53,13 +59,26 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
     return result;
   };
 
+  const seatViewer = (seats: string[]) => {
+    let result: string = '';
+    seats.forEach(seat => {
+      return seats.indexOf(seat) !== seats.length - 1
+        ? (result = result + seat + ', ')
+        : (result = result + seat);
+    });
+    return result;
+  };
+
   const ReservationBlock = (
     reservation: {
       __typename?: 'Reservation' | undefined;
-    } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
+    } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt' | 'seats'>,
   ) => {
     const result = reservation.__typename === 'Reservation' && (
-      <div onClick={() => setClicked(clicked => reservation.id)}>
+      <div
+        key={reservation.id}
+        onClick={() => setClicked(clicked => reservation.id)}
+      >
         <BlockLid>
           <Text className="title">공연명</Text>
         </BlockLid>
@@ -74,23 +93,40 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
           {reservation.status === ReservationStatus.Preempted
             ? clicked === reservation.id && (
                 <>
-                  <Text className="seat">선택 좌석</Text>
+                  <Text className="seat">
+                    선택 좌석
+                    <br />
+                    {seatViewer(reservation.seats)}
+                  </Text>
                   <Button
                     className="reservation"
-                    onClick={() => {
-                      setReservations(reservations => reservations);
+                    onClick={async () => {
+                      await reserveSeat(reservation.id);
+                      setReservations(reservations => {
+                        let confirmed = Object.assign({}, reservation);
+                        confirmed.status = ReservationStatus.Reserved;
+                        return [
+                          ...reservations.filter(
+                            preempted => preempted.id !== reservation.id,
+                          ),
+                          confirmed,
+                        ];
+                      });
+                      setClicked('');
                     }}
                   >
                     예약 확정
                   </Button>
                   <Button
                     className="cancelPreempted"
-                    onClick={() => {
+                    onClick={async () => {
+                      await cancelReservation(reservation.id);
                       setReservations(reservations =>
                         reservations.filter(
                           reserved => reserved.id !== reservation.id,
                         ),
                       );
+                      setClicked('');
                     }}
                   >
                     예약 취소
@@ -99,15 +135,21 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
               )
             : clicked === reservation.id && (
                 <>
-                  <Text className="seat">선택 좌석</Text>
+                  <Text className="seat">
+                    선택 좌석
+                    <br />
+                    {seatViewer(reservation.seats)}
+                  </Text>
                   <Button
                     className="cancelReserved"
-                    onClick={() => {
+                    onClick={async () => {
+                      await cancelReservation(reservation.id);
                       setReservations(reservations =>
                         reservations.filter(
                           reserved => reserved.id !== reservation.id,
                         ),
                       );
+                      setClicked('');
                     }}
                   >
                     예약 취소
@@ -122,7 +164,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
 
   const loadingScreen = <Spinner />;
 
-  const loadedScreen = (
+  const LoadedScreen = (
     <SContainer>
       {preempted.length !== 0 && '예약 미완료'}
       {preempted.map(reservation => ReservationBlock(reservation))}
@@ -134,7 +176,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
   return (
     <>
       <LoggedInHeader />
-      {loading ? loadingScreen : loadedScreen}
+      {loading ? loadingScreen : LoadedScreen}
     </>
   );
 };
@@ -166,7 +208,7 @@ const handleText = (className: string) => {
     case 'title':
       return `color: ${colors.white};line-height: 14px;margin-top: 8px; font-size:12px`;
     case 'seat':
-      return `padding-top: 38px`;
+      return `padding-top: 38px;line-height: 16px;`;
     default:
       return '';
   }
