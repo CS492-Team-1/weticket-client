@@ -4,7 +4,8 @@ import { colors } from '../../assets/styles/colors';
 import { gql } from '@apollo/client';
 
 import { Reservation, ReservationStatus, useMeQuery } from '../../utils/client';
-import { Spinner } from './Loading';
+import { Spinner } from '../../components';
+import { LoggedInHeader } from '../../routes/LoggedInRoutes/LoggedInHeader';
 
 gql`
   query me {
@@ -12,6 +13,7 @@ gql`
       username
       reservations {
         id
+        seats
         time
         status
         preemptedAt
@@ -131,7 +133,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
 
   return (
     <>
-      <Header>WeTicket</Header>
+      <LoggedInHeader />
       {loading ? loadingScreen : loadedScreen}
     </>
   );
@@ -207,23 +209,6 @@ const handleButton = (className: string) => {
   }
 };
 
-const Header = styled.div`
-  box-sizing: border-box;
-  z-index: 5;
-  position: fixed;
-  width: 320px;
-  height: 40px;
-  top: 0px;
-  background: ${colors.primary};
-  padding-top: 9px;
-  padding-left: 9px;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 18px;
-  line-height: 21px;
-  color: ${colors.white};
-`;
-
 const Button = styled.button<{ className: string }>`
   display: block;
   height: 41px;
@@ -246,4 +231,5 @@ const SContainer = styled.div`
   font-size: 12px;
   padding-left: 8px;
   padding-top: 8px;
+  z-index: -1;
 `;

@@ -74,7 +74,7 @@ export type MutationReserveSeatArgs = {
 };
 
 export type PreemptSeatInput = {
-  seat: Scalars['Float'];
+  seats: Array<Scalars['String']>;
   time: Scalars['DateTime'];
 };
 
@@ -112,7 +112,7 @@ export type Reservation = {
   __typename?: 'Reservation';
   id: Scalars['String'];
   preemptedAt?: Maybe<Scalars['DateTime']>;
-  seat: Scalars['Float'];
+  seats: Array<Scalars['String']>;
   status: ReservationStatus;
   time: Scalars['DateTime'];
   user: User;
@@ -194,6 +194,66 @@ export type RegisterMutation = (
   ) }
 );
 
+export type PreemptSeatMutationVariables = Exact<{
+  input: PreemptSeatInput;
+}>;
+
+
+export type PreemptSeatMutation = (
+  { __typename?: 'Mutation' }
+  & { preemptSeat: (
+    { __typename?: 'PreemptSeatOutput' }
+    & Pick<PreemptSeatOutput, 'ok' | 'error'>
+    & { reservation?: Maybe<(
+      { __typename?: 'Reservation' }
+      & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>
+    )> }
+  ) }
+);
+
+export type ReservationsQueryVariables = Exact<{
+  input: ReservationsInput;
+}>;
+
+
+export type ReservationsQuery = (
+  { __typename?: 'Query' }
+  & { reservations: (
+    { __typename?: 'ReservationsOutput' }
+    & Pick<ReservationsOutput, 'ok' | 'error'>
+    & { reservations?: Maybe<Array<(
+      { __typename?: 'Reservation' }
+      & Pick<Reservation, 'seats'>
+    )>> }
+  ) }
+);
+
+export type NewReservationOnTimeSubscriptionVariables = Exact<{
+  time: Scalars['DateTime'];
+}>;
+
+
+export type NewReservationOnTimeSubscription = (
+  { __typename?: 'Subscription' }
+  & { newReservationOnTime: (
+    { __typename?: 'Reservation' }
+    & Pick<Reservation, 'id' | 'seats'>
+  ) }
+);
+
+export type CanceledReservationOnTimeSubscriptionVariables = Exact<{
+  time: Scalars['DateTime'];
+}>;
+
+
+export type CanceledReservationOnTimeSubscription = (
+  { __typename?: 'Subscription' }
+  & { canceledReservationOnTime: (
+    { __typename?: 'Reservation' }
+    & Pick<Reservation, 'id' | 'seats'>
+  ) }
+);
+
 export type CancelReservationMutationVariables = Exact<{
   input: CancelReservationInput;
 }>;
@@ -234,7 +294,7 @@ export type MeQuery = (
     & Pick<User, 'username'>
     & { reservations: Array<(
       { __typename?: 'Reservation' }
-      & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>
+      & Pick<Reservation, 'id' | 'seats' | 'time' | 'status' | 'preemptedAt'>
     )> }
   ) }
 );
@@ -309,6 +369,147 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const PreemptSeatDocument = gql`
+    mutation preemptSeat($input: PreemptSeatInput!) {
+  preemptSeat(input: $input) {
+    ok
+    error
+    reservation {
+      id
+      time
+      status
+      preemptedAt
+    }
+  }
+}
+    `;
+export type PreemptSeatMutationFn = Apollo.MutationFunction<PreemptSeatMutation, PreemptSeatMutationVariables>;
+
+/**
+ * __usePreemptSeatMutation__
+ *
+ * To run a mutation, you first call `usePreemptSeatMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePreemptSeatMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [preemptSeatMutation, { data, loading, error }] = usePreemptSeatMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function usePreemptSeatMutation(baseOptions?: Apollo.MutationHookOptions<PreemptSeatMutation, PreemptSeatMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PreemptSeatMutation, PreemptSeatMutationVariables>(PreemptSeatDocument, options);
+      }
+export type PreemptSeatMutationHookResult = ReturnType<typeof usePreemptSeatMutation>;
+export type PreemptSeatMutationResult = Apollo.MutationResult<PreemptSeatMutation>;
+export type PreemptSeatMutationOptions = Apollo.BaseMutationOptions<PreemptSeatMutation, PreemptSeatMutationVariables>;
+export const ReservationsDocument = gql`
+    query reservations($input: ReservationsInput!) {
+  reservations(input: $input) {
+    ok
+    error
+    reservations {
+      seats
+    }
+  }
+}
+    `;
+
+/**
+ * __useReservationsQuery__
+ *
+ * To run a query within a React component, call `useReservationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useReservationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useReservationsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useReservationsQuery(baseOptions: Apollo.QueryHookOptions<ReservationsQuery, ReservationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ReservationsQuery, ReservationsQueryVariables>(ReservationsDocument, options);
+      }
+export function useReservationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ReservationsQuery, ReservationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ReservationsQuery, ReservationsQueryVariables>(ReservationsDocument, options);
+        }
+export type ReservationsQueryHookResult = ReturnType<typeof useReservationsQuery>;
+export type ReservationsLazyQueryHookResult = ReturnType<typeof useReservationsLazyQuery>;
+export type ReservationsQueryResult = Apollo.QueryResult<ReservationsQuery, ReservationsQueryVariables>;
+export const NewReservationOnTimeDocument = gql`
+    subscription newReservationOnTime($time: DateTime!) {
+  newReservationOnTime(time: $time) {
+    id
+    seats
+  }
+}
+    `;
+
+/**
+ * __useNewReservationOnTimeSubscription__
+ *
+ * To run a query within a React component, call `useNewReservationOnTimeSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewReservationOnTimeSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewReservationOnTimeSubscription({
+ *   variables: {
+ *      time: // value for 'time'
+ *   },
+ * });
+ */
+export function useNewReservationOnTimeSubscription(baseOptions: Apollo.SubscriptionHookOptions<NewReservationOnTimeSubscription, NewReservationOnTimeSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NewReservationOnTimeSubscription, NewReservationOnTimeSubscriptionVariables>(NewReservationOnTimeDocument, options);
+      }
+export type NewReservationOnTimeSubscriptionHookResult = ReturnType<typeof useNewReservationOnTimeSubscription>;
+export type NewReservationOnTimeSubscriptionResult = Apollo.SubscriptionResult<NewReservationOnTimeSubscription>;
+export const CanceledReservationOnTimeDocument = gql`
+    subscription canceledReservationOnTime($time: DateTime!) {
+  canceledReservationOnTime(time: $time) {
+    id
+    seats
+  }
+}
+    `;
+
+/**
+ * __useCanceledReservationOnTimeSubscription__
+ *
+ * To run a query within a React component, call `useCanceledReservationOnTimeSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useCanceledReservationOnTimeSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCanceledReservationOnTimeSubscription({
+ *   variables: {
+ *      time: // value for 'time'
+ *   },
+ * });
+ */
+export function useCanceledReservationOnTimeSubscription(baseOptions: Apollo.SubscriptionHookOptions<CanceledReservationOnTimeSubscription, CanceledReservationOnTimeSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<CanceledReservationOnTimeSubscription, CanceledReservationOnTimeSubscriptionVariables>(CanceledReservationOnTimeDocument, options);
+      }
+export type CanceledReservationOnTimeSubscriptionHookResult = ReturnType<typeof useCanceledReservationOnTimeSubscription>;
+export type CanceledReservationOnTimeSubscriptionResult = Apollo.SubscriptionResult<CanceledReservationOnTimeSubscription>;
 export const CancelReservationDocument = gql`
     mutation cancelReservation($input: CancelReservationInput!) {
   cancelReservation(input: $input) {
@@ -389,6 +590,7 @@ export const MeDocument = gql`
     username
     reservations {
       id
+      seats
       time
       status
       preemptedAt

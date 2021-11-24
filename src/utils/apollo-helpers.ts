@@ -35,11 +35,11 @@ export type RegisterOutputFieldPolicy = {
 	ok?: FieldPolicy<any> | FieldReadFunction<any>,
 	user?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type ReservationKeySpecifier = ('id' | 'preemptedAt' | 'seat' | 'status' | 'time' | 'user' | ReservationKeySpecifier)[];
+export type ReservationKeySpecifier = ('id' | 'preemptedAt' | 'seats' | 'status' | 'time' | 'user' | ReservationKeySpecifier)[];
 export type ReservationFieldPolicy = {
 	id?: FieldPolicy<any> | FieldReadFunction<any>,
 	preemptedAt?: FieldPolicy<any> | FieldReadFunction<any>,
-	seat?: FieldPolicy<any> | FieldReadFunction<any>,
+	seats?: FieldPolicy<any> | FieldReadFunction<any>,
 	status?: FieldPolicy<any> | FieldReadFunction<any>,
 	time?: FieldPolicy<any> | FieldReadFunction<any>,
 	user?: FieldPolicy<any> | FieldReadFunction<any>

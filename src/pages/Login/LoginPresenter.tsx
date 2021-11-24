@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
-import { colors } from '../../assets/styles/colors'
+import { colors } from '../../assets/styles/colors';
 import { Login } from '.';
+import { Spinner } from '../../components';
 
 //TODO : prop type 정의
 type LoginPresenterProps = {
@@ -17,7 +18,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login }) => {
       <Title>WeTicket</Title>
       <LogInContainer>
         <SubTitle>LogIn</SubTitle>
-        <HorizonLine/>
+        <HorizonLine />
         <LoginForm>
           <IDBox></IDBox>
           <PwBox></PwBox>
@@ -39,12 +40,11 @@ const SContainer = styled.div`
   align-items: center;
   text-align: center;
   background-color: ${colors.primary};
-  a{
+  a {
     display: content;
   }
   height: 100vh;
-  width : 100vw;
-
+  width: 100vw;
 `;
 
 const Title = styled.h1`
@@ -63,7 +63,6 @@ const SubTitle = styled.h2`
   margin-top: 30px;
   margin-bottom: 10px;
 `;
-
 
 const LogInContainer = styled.div`
   display: flex;
@@ -104,7 +103,7 @@ const LoginButton = styled(Button)`
   color: ${colors.white};
   box-shadow: none;
   background-color: ${colors.primary};
-  margin-bottom :20px;
+  margin-bottom: 20px;
 `;
 
 const RegisterButton = styled(Button)`
@@ -123,7 +122,6 @@ const Messages = styled.span`
   margin: 6px;
 `;
 
-
 const InputBox = styled.input`
   border-radius: 15px;
   border-color: none;
@@ -136,7 +134,8 @@ const InputBox = styled.input`
   border-width: thin;
 `;
 
-
-const IDBox = styled(InputBox).attrs({placeholder: "ID"})``;
-const PwBox = styled(InputBox).attrs({placeholder: "password", type:"password"})``;
-
+const IDBox = styled(InputBox).attrs({ placeholder: 'ID' })``;
+const PwBox = styled(InputBox).attrs({
+  placeholder: 'password',
+  type: 'password',
+})``;
