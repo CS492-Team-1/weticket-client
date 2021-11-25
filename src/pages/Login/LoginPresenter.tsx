@@ -1,19 +1,18 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useForm , SubmitHandler} from 'react-hook-form';
-import { colors } from '../../assets/styles/colors'
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { colors } from '../../assets/styles/colors';
 import { Login } from '.';
-import { Spinner } from '../../components'
-
+import { Spinner } from '../../components';
 
 //TODO : prop type 정의
 type LoginPresenterProps = {
   loginLoading: boolean;
-  login: (username: string, password:string) => void;
+  login: (username: string, password: string) => void;
 };
 
 type LoginProps = {
-  username : string;
+  username: string;
   password: string;
 };
 
@@ -42,14 +41,17 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
       <Title>WeTicket</Title>
       <LogInContainer>
         <SubTitle>LogIn</SubTitle>
-        <HorizonLine/>
-        <LoginForm onSubmit= {handleSubmit(onSubmit)}>
+        <HorizonLine />
+        <LoginForm onSubmit={handleSubmit(onSubmit)}>
+          <IDBox {...register('username', { required: true })}></IDBox>
+          <ErrorMessages>
+            {errors.username && 'ID를 입력해주세요!'}
+          </ErrorMessages>
 
-          <IDBox {...register("username", {required: true})}></IDBox>
-          <ErrorMessages>{errors.username && ("ID를 입력해주세요!")}</ErrorMessages>
-
-          <PwBox {...register("password", {required: true})}></PwBox>
-          <ErrorMessages>{errors.password && "비밀번호를 입력해주세요!"}</ErrorMessages>
+          <PwBox {...register('password', { required: true })}></PwBox>
+          <ErrorMessages>
+            {errors.password && '비밀번호를 입력해주세요!'}
+          </ErrorMessages>
 
           <SubmitButton>로그인</SubmitButton>
 
@@ -94,7 +96,6 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
   );
 };
 
-
 const SContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -103,11 +104,11 @@ const SContainer = styled.div`
   align-items: center;
   text-align: center;
   background-color: ${colors.primary};
-  a{
+  a {
     display: content;
   }
   height: 100vh;
-  width : 100vw;
+  width: 100vw;
 `;
 
 const Title = styled.h1`
@@ -126,7 +127,6 @@ const SubTitle = styled.h2`
   margin-top: 30px;
   margin-bottom: 10px;
 `;
-
 
 const LogInContainer = styled.div`
   display: flex;
@@ -167,7 +167,7 @@ const SubmitButton = styled(Button)`
   color: ${colors.white};
   box-shadow: none;
   background-color: ${colors.primary};
-  margin-bottom :20px;
+  margin-bottom: 20px;
 `;
 
 const ToggleButton = styled(Button).attrs({type:"button"})`

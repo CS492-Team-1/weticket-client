@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../assets/styles/colors';
 import { gql } from '@apollo/client';
 
 import { Reservation, ReservationStatus, useMeQuery } from '../../utils/client';
 import { Spinner } from '../../components';
+import { LoggedInHeader } from '../../routes/LoggedInRoutes/LoggedInHeader';
 
 gql`
   query me {
@@ -22,82 +23,153 @@ gql`
 `;
 
 //TODO : prop type 정의
-type ReservationPresenterProps = {};
+type ReservationPresenterProps = {
+  cancelReservation: (reservationId: string) => Promise<void>;
+  reserveSeat: (reservationId: string) => Promise<void>;
+};
 
-export const ReservationsPresenter: React.FC<ReservationPresenterProps> =
-  () => {
-    const { data, loading } = useMeQuery();
-    const [clicked, setClicked] = useState('');
-    const reservations = data?.me.reservations || [];
-    const preempted = reservations.filter(
-      reservation => reservation.status === ReservationStatus.Preempted,
-    );
-    const reserved = reservations.filter(
-      reservation => reservation.status === ReservationStatus.Reserved,
-    );
+export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
+  cancelReservation,
+  reserveSeat,
+}) => {
+  const { data, loading } = useMeQuery();
+  const [clicked, setClicked] = useState('');
+  const [reservations, setReservations] = useState(data?.me.reservations || []);
+  const preempted = reservations.filter(
+    reservation => reservation.status === ReservationStatus.Preempted,
+  );
 
-    const timeParser = (
-      reservation: {
-        __typename?: 'Reservation' | undefined;
-      } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
-    ) => {
-      let result: string = reservation.time;
-      result = result.replace('T', ' ');
-      result = result.substring(0, result.lastIndexOf(':'));
-      return result;
-    };
+  const reserved = reservations.filter(
+    reservation => reservation.status === ReservationStatus.Reserved,
+  );
 
-    const ReservationBlock = (
-      reservation: {
-        __typename?: 'Reservation' | undefined;
-      } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt'>,
-    ) => {
-      const result = reservation.__typename === 'Reservation' && (
-        <div onClick={() => setClicked(clicked => reservation.id)}>
-          <BlockLid>
-            <Text className="title">공연명</Text>
-          </BlockLid>
-          <BlockBottom isClicked={clicked === reservation.id}>
-            <Text className="location">장소</Text>
-            <Text className="date">
-              시각
-              <br />
-              {timeParser(reservation)}
-            </Text>
-            <VerticalLine />
-            {reservation.status === ReservationStatus.Preempted
-              ? clicked === reservation.id && (
-                  <>
-                    <Text className="seat">선택 좌석</Text>
-                    <Button className="reservation">예약 확정</Button>
-                    <Button className="cancelPreempted">예약 취소</Button>
-                  </>
-                )
-              : clicked === reservation.id && (
-                  <>
-                    <Text className="seat">선택 좌석</Text>
-                    <Button className="cancelReserved">예약 취소</Button>
-                  </>
-                )}
-          </BlockBottom>
-        </div>
-      );
-      return result;
-    };
+  useEffect(() => {
+    setReservations(reservations => data?.me.reservations || []);
+    return;
+  }, [loading]);
 
-    const loadingScreen = <Spinner />;
-
-    const loadedScreen = (
-      <SContainer>
-        {preempted.length !== 0 && '예약 미완료'}
-        {preempted.map(reservation => ReservationBlock(reservation))}
-        {reserved.length !== 0 && '예약 완료'}
-        {reserved.map(reservation => ReservationBlock(reservation))}
-      </SContainer>
-    );
-
-    return loading ? loadingScreen : loadedScreen;
+  const timeParser = (
+    reservation: {
+      __typename?: 'Reservation' | undefined;
+    } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt' | 'seats'>,
+  ) => {
+    let result: string = reservation.time;
+    result = result.replace('T', ' ');
+    result = result.substring(0, result.lastIndexOf(':'));
+    return result;
   };
+
+  const ReservationBlock = (
+    reservation: {
+      __typename?: 'Reservation' | undefined;
+    } & Pick<Reservation, 'id' | 'time' | 'status' | 'preemptedAt' | 'seats'>,
+  ) => {
+    const result = reservation.__typename === 'Reservation' && (
+      <div
+        key={reservation.id}
+        onClick={() => setClicked(clicked => reservation.id)}
+      >
+        <BlockLid>
+          <Text className="title">공연명</Text>
+        </BlockLid>
+        <BlockBottom isClicked={clicked === reservation.id}>
+          <Text className="location">장소</Text>
+          <Text className="date">
+            시각
+            <br />
+            {timeParser(reservation)}
+          </Text>
+          <VerticalLine />
+          {reservation.status === ReservationStatus.Preempted
+            ? clicked === reservation.id && (
+                <>
+                  <Text className="seat">
+                    선택 좌석
+                    <br />
+                    {reservation.seats.join(", ")}
+                  </Text>
+                  <Button
+                    className="reservation"
+                    onClick={async () => {
+                      await reserveSeat(reservation.id);
+                      setReservations(reservations => {
+                        let confirmed = Object.assign({}, reservation);
+                        confirmed.status = ReservationStatus.Reserved;
+                        return [
+                          ...reservations.filter(
+                            preempted => preempted.id !== reservation.id,
+                          ),
+                          confirmed,
+                        ];
+                      });
+                      setClicked('');
+                    }}
+                  >
+                    예약 확정
+                  </Button>
+                  <Button
+                    className="cancelPreempted"
+                    onClick={async () => {
+                      await cancelReservation(reservation.id);
+                      setReservations(reservations =>
+                        reservations.filter(
+                          reserved => reserved.id !== reservation.id,
+                        ),
+                      );
+                      setClicked('');
+                    }}
+                  >
+                    예약 취소
+                  </Button>
+                </>
+              )
+            : clicked === reservation.id && (
+                <>
+                  <Text className="seat">
+                    선택 좌석
+                    <br />
+                    {reservation.seats.join(", ")}
+                  </Text>
+                  <Button
+                    className="cancelReserved"
+                    onClick={async () => {
+                      await cancelReservation(reservation.id);
+                      setReservations(reservations =>
+                        reservations.filter(
+                          reserved => reserved.id !== reservation.id,
+                        ),
+                      );
+                      setClicked('');
+                    }}
+                  >
+                    예약 취소
+                  </Button>
+                </>
+              )}
+        </BlockBottom>
+      </div>
+    );
+    return result;
+  };
+
+  const loadingScreen = <Spinner />;
+
+  const LoadedScreen = (
+    <SContainer>
+      {preempted.length !== 0 && '예약 미완료'}
+      {preempted.map(reservation => ReservationBlock(reservation))}
+      {reserved.length !== 0 && '예약 완료'}
+      {reserved.map(reservation => ReservationBlock(reservation))}
+    </SContainer>
+  );
+
+  return (
+    <>
+      <LoggedInHeader />
+      {loading ? loadingScreen : LoadedScreen}
+    </>
+  );
+};
 
 const BlockLid = styled.div`
   width: 304px;
@@ -126,7 +198,7 @@ const handleText = (className: string) => {
     case 'title':
       return `color: ${colors.white};line-height: 14px;margin-top: 8px; font-size:12px`;
     case 'seat':
-      return `padding-top: 38px`;
+      return `padding-top: 38px;line-height: 16px;`;
     default:
       return '';
   }
@@ -169,23 +241,6 @@ const handleButton = (className: string) => {
   }
 };
 
-const Header = styled.div`
-  box-sizing: border-box;
-  z-index: 5;
-  position: fixed;
-  width: 320px;
-  height: 40px;
-  top: 0px;
-  background: ${colors.primary};
-  padding-top: 9px;
-  padding-left: 9px;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 18px;
-  line-height: 21px;
-  color: ${colors.white};
-`;
-
 const Button = styled.button<{ className: string }>`
   display: block;
   height: 41px;
@@ -208,4 +263,5 @@ const SContainer = styled.div`
   font-size: 12px;
   padding-left: 8px;
   padding-top: 8px;
+  z-index: -1;
 `;
