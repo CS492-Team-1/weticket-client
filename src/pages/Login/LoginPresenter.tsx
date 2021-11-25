@@ -8,7 +8,9 @@ import { Spinner } from '../../components';
 //TODO : prop type 정의
 type LoginPresenterProps = {
   loginLoading: boolean;
-  login: (username: string, password: string) => void;
+  registerLoading: boolean;
+  login: (username: string, password:string) => void;
+  register: (username: string, password:string, togglePage: ()=>void ) => void;
 };
 
 type LoginProps = {
@@ -16,15 +18,35 @@ type LoginProps = {
   password: string;
 };
 
+type RegisterProps = {
+  username : string;
+  password: string;
+  confirmPassword: string;
+};
 
-export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoading}) => {
-  //TODO : react-hook-form 사용하여 로그인, 회원가입 구현
-  //https://react-hook-form.com/get-started#TypeScript
-  const {register, handleSubmit, formState: { errors }, reset} = useForm<LoginProps>();
+export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoading, register, registerLoading}) => {
+
+  const {
+    register: loginInputs, 
+    handleSubmit:loginSubmit, 
+    formState: { errors: loginErrors }, 
+    reset: loginReset} = useForm<LoginProps>();
+
+  const {
+    register: registerInputs, 
+    handleSubmit: registerSubmit, 
+    formState: { errors: registerErrors }, 
+    reset: registerReset,
+    watch: registerWatch} = useForm<RegisterProps>();
+
+
+  const watchPassword = registerWatch("password", "");
 
   const [isLogin, setLogin] = useState(true);
 
   const togglePage = () =>{
+    loginReset({username: '', password: ''});
+    registerReset({username: '', password: '', confirmPassword: ''});
     setLogin(!isLogin);
   };
 
@@ -32,26 +54,29 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
     const {username, password} = data;
 
     login(username, password);
-    reset({username: '', password: ''});
+    loginReset({username: '', password: ''});
 
   };
+
+  const onSubmitRegister : SubmitHandler<RegisterProps> = (data) =>{
+    const {username, password} = data;
+    register(username, password, togglePage);
+    registerReset({username: '', password: '', confirmPassword: ''});
+  }
 
   const LoginPage = (
     <SContainer>
       <Title>WeTicket</Title>
       <LogInContainer>
         <SubTitle>LogIn</SubTitle>
-        <HorizonLine />
-        <LoginForm onSubmit={handleSubmit(onSubmit)}>
-          <IDBox {...register('username', { required: true })}></IDBox>
-          <ErrorMessages>
-            {errors.username && 'ID를 입력해주세요!'}
-          </ErrorMessages>
+        <HorizonLine/>
+        <LoginForm onSubmit= {loginSubmit(onSubmit)}>
 
-          <PwBox {...register('password', { required: true })}></PwBox>
-          <ErrorMessages>
-            {errors.password && '비밀번호를 입력해주세요!'}
-          </ErrorMessages>
+          <IDBox {...loginInputs("username", {required: {value: true, message: "ID를 입력해주세요!"}})}></IDBox>
+          <ErrorMessages>{loginErrors.username && loginErrors.username?.message}</ErrorMessages>
+
+          <PwBox {...loginInputs("password", {required: {value: true, message: "비밀번호를 입력해주세요!"}})}></PwBox>
+          <ErrorMessages>{loginErrors.password && loginErrors.password?.message}</ErrorMessages>
 
           <SubmitButton>로그인</SubmitButton>
 
@@ -63,17 +88,38 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
     </SContainer>
   );
 
-  const Registerpage = (
+  const RegisterPage = (
     <SContainer>
       <Title>WeTicket</Title>
       <LogInContainer>
         <SubTitle>회원가입</SubTitle>
         <HorizonLine/>
-        <LoginForm>
+        <LoginForm onSubmit= {registerSubmit(onSubmitRegister)}>
 
-          <IDBox></IDBox>
-          <PwBox></PwBox>
-          <CPwBox></CPwBox>
+          <IDBox {...registerInputs("username", {
+                      required: {value: true, message: "ID를 입력해주세요!"},
+                      maxLength: {value: 15, message: "ID는 15글자 이하로 설정해주세요"}, 
+                      pattern: {value: /^[a-z0-9]+$/, message: "알파벳 소문자, 숫자만 사용해주세요"}}
+                      )}>            
+          </IDBox> 
+          <ErrorMessages>{registerErrors.username && registerErrors.username?.message}</ErrorMessages>
+
+          <PwBox {...registerInputs("password", {
+                      required: {value: true, message: "비밀번호를 입력해주세요!"},
+                      minLength: {value: 5, message: "비밀번호는 5~15글자로 설정해주세요"},
+                      maxLength: {value: 15, message: "비밀번호는 5~15글자로 설정해주세요"},
+                      pattern: {value: /^[a-zA-Z0-9]+$/, message: "알파벳, 숫자만 사용해주세요"}}
+                      )}>            
+          </PwBox>
+          <ErrorMessages>{ (!registerErrors.username) && registerErrors.password && registerErrors.password?.message}</ErrorMessages>
+
+          <CPwBox {...registerInputs("confirmPassword", {
+                        validate: value => value === watchPassword || "비밀번호를 확인해주세요!"
+                        })}>
+          </CPwBox>
+          <ErrorMessages>{ !(registerErrors.username || registerErrors.password) 
+                        && registerErrors.confirmPassword 
+                        && registerErrors.confirmPassword?.message}</ErrorMessages>
 
           <SubmitButton>회원가입</SubmitButton>
 
@@ -91,7 +137,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
 
   return (
     <>
-    {isLogin ? (loginLoading ? LoadingPage : LoginPage) : Registerpage}
+    {(loginLoading || registerLoading) ? LoadingPage : (isLogin ?  LoginPage : RegisterPage)}
     </>
   );
 };
@@ -125,7 +171,7 @@ const SubTitle = styled.h2`
   font-size: 18px;
   font-weight: 500;
   margin-top: 30px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 `;
 
 const LogInContainer = styled.div`
