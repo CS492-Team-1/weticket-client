@@ -1,10 +1,9 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useForm , SubmitHandler} from 'react-hook-form';
-import { colors } from '../../assets/styles/colors'
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { colors } from '../../assets/styles/colors';
 import { Login } from '.';
-import { Spinner } from '../../components'
-
+import { Spinner } from '../../components';
 
 //TODO : prop type 정의
 type LoginPresenterProps = {
@@ -15,7 +14,7 @@ type LoginPresenterProps = {
 };
 
 type LoginProps = {
-  username : string;
+  username: string;
   password: string;
 };
 
@@ -46,11 +45,14 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
   const [isLogin, setLogin] = useState(true);
 
   const togglePage = () =>{
+    loginReset({username: '', password: ''});
+    registerReset({username: '', password: '', confirmPassword: ''});
     setLogin(!isLogin);
   };
 
   const onSubmit : SubmitHandler<LoginProps> = (data) =>{
     const {username, password} = data;
+
     login(username, password);
     loginReset({username: '', password: ''});
 
@@ -96,8 +98,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
 
           <IDBox {...registerInputs("username", {
                       required: {value: true, message: "ID를 입력해주세요!"},
-                      minLength: {value: 8, message: "ID는 8~15글자로 설정해주세요"},
-                      maxLength: {value: 15, message: "ID는 8~15글자로 설정해주세요"}, 
+                      maxLength: {value: 15, message: "ID는 15글자 이하로 설정해주세요"}, 
                       pattern: {value: /^[a-z0-9]+$/, message: "알파벳 소문자, 숫자만 사용해주세요"}}
                       )}>            
           </IDBox> 
@@ -141,7 +142,6 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
   );
 };
 
-
 const SContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -150,11 +150,11 @@ const SContainer = styled.div`
   align-items: center;
   text-align: center;
   background-color: ${colors.primary};
-  a{
+  a {
     display: content;
   }
   height: 100vh;
-  width : 100vw;
+  width: 100vw;
 `;
 
 const Title = styled.h1`
@@ -173,7 +173,6 @@ const SubTitle = styled.h2`
   margin-top: 30px;
   margin-bottom: 5px;
 `;
-
 
 const LogInContainer = styled.div`
   display: flex;
@@ -214,7 +213,7 @@ const SubmitButton = styled(Button)`
   color: ${colors.white};
   box-shadow: none;
   background-color: ${colors.primary};
-  margin-bottom :20px;
+  margin-bottom: 20px;
 `;
 
 const ToggleButton = styled(Button).attrs({type:"button"})`

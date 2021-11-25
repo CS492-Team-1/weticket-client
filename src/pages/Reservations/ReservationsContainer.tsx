@@ -89,6 +89,10 @@ export const ReservationsContainer: React.FC = () => {
     }
   };
 
-  //TODO : prop으로 필요한 데이터 및 메소드 전달
-  return <ReservationsPresenter />;
+  return (
+    <ReservationsPresenter
+      reserveSeat={reserveSeat}
+      cancelReservation={cancelReservation}
+    />
+  );
 };
