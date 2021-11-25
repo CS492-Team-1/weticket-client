@@ -16,23 +16,24 @@ type LoginProps = {
   password: string;
 };
 
-export const LoginPresenter: React.FC<LoginPresenterProps> = ({
-  login,
-  loginLoading,
-}) => {
+
+export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoading}) => {
   //TODO : react-hook-form 사용하여 로그인, 회원가입 구현
   //https://react-hook-form.com/get-started#TypeScript
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<LoginProps>();
+  const {register, handleSubmit, formState: { errors }, reset} = useForm<LoginProps>();
 
-  const onSubmit: SubmitHandler<LoginProps> = data => {
-    const { username, password } = data;
+  const [isLogin, setLogin] = useState(true);
+
+  const togglePage = () =>{
+    setLogin(!isLogin);
+  };
+
+  const onSubmit : SubmitHandler<LoginProps> = (data) =>{
+    const {username, password} = data;
+
     login(username, password);
-    reset({ username: '', password: '' });
+    reset({username: '', password: ''});
+
   };
 
   const LoginPage = (
@@ -52,22 +53,47 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
             {errors.password && '비밀번호를 입력해주세요!'}
           </ErrorMessages>
 
-          <LoginButton>로그인</LoginButton>
+          <SubmitButton>로그인</SubmitButton>
 
           <Messages>계정이 없으신가요?</Messages>
-          <RegisterButton>회원가입</RegisterButton>
+          <ToggleButton onClick ={togglePage}>회원가입</ToggleButton>
+
         </LoginForm>
       </LogInContainer>
     </SContainer>
   );
 
-  const loadingPage = (
+  const Registerpage = (
     <SContainer>
-      <Spinner />
+      <Title>WeTicket</Title>
+      <LogInContainer>
+        <SubTitle>회원가입</SubTitle>
+        <HorizonLine/>
+        <LoginForm>
+
+          <IDBox></IDBox>
+          <PwBox></PwBox>
+          <CPwBox></CPwBox>
+
+          <SubmitButton>회원가입</SubmitButton>
+
+          <Messages>계정이 이미 있으신가요?</Messages>
+          <ToggleButton onClick ={togglePage} >로그인</ToggleButton>
+
+        </LoginForm>
+      </LogInContainer>
     </SContainer>
   );
 
-  return <>{loginLoading ? loadingPage : LoginPage}</>;
+  const LoadingPage = (<SContainer>
+                        <Spinner />
+                      </SContainer>);
+
+  return (
+    <>
+    {isLogin ? (loginLoading ? LoadingPage : LoginPage) : Registerpage}
+    </>
+  );
 };
 
 const SContainer = styled.div`
@@ -136,7 +162,7 @@ const Button = styled.button`
   margin: 6px;
 `;
 
-const LoginButton = styled(Button)`
+const SubmitButton = styled(Button)`
   border-color: none;
   color: ${colors.white};
   box-shadow: none;
@@ -144,7 +170,7 @@ const LoginButton = styled(Button)`
   margin-bottom: 20px;
 `;
 
-const RegisterButton = styled(Button).attrs({ type: 'button' })`
+const ToggleButton = styled(Button).attrs({type:"button"})`
   color: ${colors.black};
   border-color: ${colors.black};
   border-style: solid;
@@ -177,8 +203,7 @@ const InputBox = styled.input`
   border-width: thin;
 `;
 
-const IDBox = styled(InputBox).attrs({ placeholder: 'ID' })``;
-const PwBox = styled(InputBox).attrs({
-  placeholder: 'password',
-  type: 'password',
-})``;
+
+const IDBox = styled(InputBox).attrs({placeholder: "ID"})``;
+const PwBox = styled(InputBox).attrs({placeholder: "password", type:"password"})``;
+const CPwBox = styled(InputBox).attrs({placeholder: "confirm password", type:"password"})``;
