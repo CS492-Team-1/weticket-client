@@ -59,16 +59,6 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
     return result;
   };
 
-  const seatViewer = (seats: string[]) => {
-    let result: string = '';
-    seats.forEach(seat => {
-      return seats.indexOf(seat) !== seats.length - 1
-        ? (result = result + seat + ', ')
-        : (result = result + seat);
-    });
-    return result;
-  };
-
   const ReservationBlock = (
     reservation: {
       __typename?: 'Reservation' | undefined;
@@ -96,7 +86,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
                   <Text className="seat">
                     선택 좌석
                     <br />
-                    {seatViewer(reservation.seats)}
+                    {reservation.seats.join(", ")}
                   </Text>
                   <Button
                     className="reservation"
@@ -138,7 +128,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
                   <Text className="seat">
                     선택 좌석
                     <br />
-                    {seatViewer(reservation.seats)}
+                    {reservation.seats.join(", ")}
                   </Text>
                   <Button
                     className="cancelReserved"
