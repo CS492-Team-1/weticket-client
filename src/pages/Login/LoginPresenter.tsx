@@ -88,7 +88,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
     </SContainer>
   );
 
-  const Registerpage = (
+  const RegisterPage = (
     <SContainer>
       <Title>WeTicket</Title>
       <LogInContainer>
@@ -106,8 +106,8 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
 
           <PwBox {...registerInputs("password", {
                       required: {value: true, message: "비밀번호를 입력해주세요!"},
-                      minLength: {value: 8, message: "비밀번호는 8~15글자로 설정해주세요"},
-                      maxLength: {value: 15, message: "비밀번호는 8~15글자로 설정해주세요"},
+                      minLength: {value: 5, message: "비밀번호는 5~15글자로 설정해주세요"},
+                      maxLength: {value: 15, message: "비밀번호는 5~15글자로 설정해주세요"},
                       pattern: {value: /^[a-zA-Z0-9]+$/, message: "알파벳, 숫자만 사용해주세요"}}
                       )}>            
           </PwBox>
@@ -137,7 +137,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
 
   return (
     <>
-    {(loginLoading || registerLoading) ? LoadingPage : (isLogin ?  LoginPage : Registerpage)}
+    {(loginLoading || registerLoading) ? LoadingPage : (isLogin ?  LoginPage : RegisterPage)}
     </>
   );
 };
