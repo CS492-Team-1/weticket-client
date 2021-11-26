@@ -68,7 +68,7 @@ export const LoginContainer: React.FC = () => {
    * @param username 아이디
    * @param password 패스워드
    */
-  const register = async (username: string, password: string) => {
+  const register = async (username: string, password: string,  togglePage: ()=>void) => {
     try {
       const { data } = await registerMutation({
         variables: {
@@ -80,7 +80,10 @@ export const LoginContainer: React.FC = () => {
       });
 
       if (data?.register.ok) {
-        // TODO : 회원가입 성공시 핸들링
+        
+        togglePage();
+        window.alert("회원가입에 성공했습니다!");
+
       } else if (data?.register.error) {
         window.alert(data.register.error);
       }
@@ -95,5 +98,10 @@ export const LoginContainer: React.FC = () => {
   };
 
   //TODO : prop으로 필요한 데이터 및 메소드 전달
-  return <LoginPresenter login={login} loginLoading= {loginLoading}/>;
+  return <LoginPresenter 
+            login={login} 
+            loginLoading= {loginLoading} 
+            register = {register} 
+            registerLoading = {registerLoading}
+          />;
 };
