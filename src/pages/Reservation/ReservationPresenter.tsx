@@ -182,6 +182,7 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
 
   React.useEffect(() => {
     if (date) {
+      setSelectedSeats([]);
       reservationsQuery({
         variables: {
           input: {

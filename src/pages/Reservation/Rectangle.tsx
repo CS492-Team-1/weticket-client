@@ -41,7 +41,7 @@ export const Rectangle: React.FC<RectangleProps> = props => {
     <Graphics
       draw={draw}
       interactive
-      pointerdown={props.disabled ? undefined : props.onClick}
+      pointerup={props.disabled ? undefined : props.onClick}
     />
   );
 };
