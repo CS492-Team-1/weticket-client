@@ -293,7 +293,10 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
         <SelectedSeats>
           {selectedSeats.length > 0 ? selectedSeats.join(', ') : '없음'}
         </SelectedSeats>
-        <Submit disabled={loading} onClick={onSubmit}>
+        <Submit
+          disabled={selectedSeats.length === 0 || loading}
+          onClick={onSubmit}
+        >
           예약
         </Submit>
       </Content>
