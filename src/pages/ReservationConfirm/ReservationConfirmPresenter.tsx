@@ -78,29 +78,51 @@ export const ReservationConfirmPresenter: React.FC<ReservationConfirmPresenterPr
       </Loader>
     ) : (
       <Container>
-        <InputHeader first>날짜</InputHeader>
-        <Content>{reservationDate()}</Content>
-        <InputHeader>시간</InputHeader>
-        <Content>{reservationTime()}</Content>
-        <InputHeader>선택좌석</InputHeader>
-        <Content>{data?.reservation.reservation?.seats.join(', ')}</Content>
-        <Buttons>
-          <CancelButton loading={cancelLoading} onClick={onPressCancel}>
-            예약 취소
-          </CancelButton>
-          <ConfirmButton loading={reserveLoading} onClick={onPressConfirm}>
-            예약 확정
-          </ConfirmButton>
-        </Buttons>
+        <Content>
+          <InputHeader first>날짜</InputHeader>
+          <Text>{reservationDate()}</Text>
+          <InputHeader>시간</InputHeader>
+          <Text>{reservationTime()}</Text>
+          <InputHeader>선택좌석</InputHeader>
+          <Text>{data?.reservation.reservation?.seats.join(', ')}</Text>
+          <Buttons>
+            <CancelButton loading={cancelLoading} onClick={onPressCancel}>
+              예약 취소
+            </CancelButton>
+            <ConfirmButton loading={reserveLoading} onClick={onPressConfirm}>
+              예약 확정
+            </ConfirmButton>
+          </Buttons>
+        </Content>
       </Container>
     );
   };
 
 const Container = styled.div`
   flex: 1;
-  flex-direction: column;
-  padding: 10px;
   margin-top: 40px;
+  background-color: ${colors.white};
+  @media (min-width: 1100px) {
+    height: calc(100vh - 80px);
+    margin-top: 80px;
+    padding-top: 40px;
+    background-color: ${colors.primary};
+    box-sizing: border-box;
+  }
+`;
+
+const Content = styled.div`
+  width: 320px;
+  margin: 0 auto;
+  padding: 10px;
+  box-sizing: border-box;
+  flex-direction: column;
+  @media (min-width: 1100px) {
+    width: 1100px;
+    border-radius: 12px;
+    background-color: ${colors.white};
+    padding: 40px;
+  }
 `;
 
 const InputHeader = styled.p<{ first?: boolean }>`
@@ -117,7 +139,7 @@ const Loader = styled.div`
   position: relative;
 `;
 
-const Content = styled.p`
+const Text = styled.p`
   font-size: 15px;
   line-height: 1.6;
   font-weight: 400;
@@ -128,7 +150,10 @@ const Buttons = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 50px;
+  @media (min-width: 1100px) {
+    margin-top: 200px;
+  }
 `;
 
 const CancelButton = styled.div<{ loading: boolean }>`
@@ -143,6 +168,9 @@ const CancelButton = styled.div<{ loading: boolean }>`
   color: ${props => (props.loading ? colors.gray : colors.primary)};
   font-size: 18px;
   font-weight: 700;
+  @media (min-width: 1100px) {
+    width: 270px;
+  }
 `;
 
 const ConfirmButton = styled.div<{ loading: boolean }>`
@@ -158,4 +186,7 @@ const ConfirmButton = styled.div<{ loading: boolean }>`
   color: ${colors.white};
   font-size: 18px;
   font-weight: 700;
+  @media (min-width: 1100px) {
+    width: 270px;
+  }
 `;

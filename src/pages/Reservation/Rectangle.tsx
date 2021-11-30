@@ -13,8 +13,9 @@ type RectangleProps = {
     width: number;
     height: number;
   };
-  selected?: boolean;
-  disabled?: boolean;
+  manipulating: boolean;
+  selected: boolean;
+  disabled: boolean;
   onClick: () => void;
 };
 
@@ -41,7 +42,9 @@ export const Rectangle: React.FC<RectangleProps> = props => {
     <Graphics
       draw={draw}
       interactive
-      pointerup={props.disabled ? undefined : props.onClick}
+      pointerup={
+        props.manipulating || props.disabled ? undefined : props.onClick
+      }
     />
   );
 };

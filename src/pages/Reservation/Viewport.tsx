@@ -9,6 +9,8 @@ type ViewportProps = {
   viewportHeight: number;
   worldWidth: number;
   worldHeight: number;
+  onManipulationStart: () => void;
+  onManipulationEnd: () => void;
   children?: React.ReactNode;
 };
 
@@ -32,6 +34,38 @@ const PixiComponentViewport = PixiComponent('Viewport', {
       .wheel()
       .clamp({ direction: 'all' })
       .clampZoom({ minScale: 0.4, maxScale: 2 });
+
+    viewport.on('drag-start', () => {
+      props.onManipulationStart();
+    });
+
+    viewport.on('drag-end', () => {
+      props.onManipulationEnd();
+    });
+
+    viewport.on('pinch-start', () => {
+      props.onManipulationStart();
+    });
+
+    viewport.on('pinch-end', () => {
+      props.onManipulationEnd();
+    });
+
+    viewport.on('snap-zoom-start', () => {
+      props.onManipulationStart();
+    });
+
+    viewport.on('snap-zoom-end', () => {
+      props.onManipulationEnd();
+    });
+
+    viewport.on('snap-start', () => {
+      props.onManipulationStart();
+    });
+
+    viewport.on('snap-end', () => {
+      props.onManipulationEnd();
+    });
 
     return viewport;
   },

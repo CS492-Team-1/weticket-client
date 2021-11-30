@@ -87,6 +87,7 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
   const [seatLayout, setSeatLayout] = React.useState<SeatLayout>();
   const [selectedSeats, setSelectedSeats] = React.useState<string[]>([]);
   const [reservedSeats, setReservedSeats] = React.useState<string[]>([]);
+  const [manipulating, setManipulating] = React.useState<boolean>(false);
 
   const [reservationsQuery, { loading: reservationsLoading }] =
     useReservationsLazyQuery({
@@ -269,6 +270,8 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
                 }
                 worldWidth={seatLayout.map.size.width}
                 worldHeight={seatLayout.map.size.height}
+                onManipulationStart={() => setManipulating(true)}
+                onManipulationEnd={() => setManipulating(false)}
               >
                 {seatLayout.seats.map((seat, seatIndex) => {
                   const rectangleColor = getHexNumber(seat.color);
@@ -280,6 +283,7 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
                         key={`seat_${seatIndex}_${rectangleIndex}`}
                         color={rectangleColor}
                         {...rectangle}
+                        manipulating={manipulating}
                         selected={selectedSeats.includes(seatId)}
                         disabled={reservedSeats.includes(seatId)}
                         onClick={() => {
