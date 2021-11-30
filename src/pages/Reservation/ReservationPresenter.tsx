@@ -223,78 +223,122 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
 
   return (
     <Container>
-      <InputHeader first>날짜</InputHeader>
-      <DatePicker
-        selected={date}
-        onChange={onChangeDate}
-        minDate={tommorrow()}
-      />
-      <InputHeader>시간</InputHeader>
-      <select value={time} onChange={e => setTime(e.target.value)}>
-        {timeOptions.map(timeOption => (
-          <option value={timeOption}>{timeOption}</option>
-        ))}
-      </select>
-      <InputHeader>좌석선택</InputHeader>
-      {seatLayout && !reservationsLoading ? (
-        <SeatWrapper>
-          <Stage
-            width={Math.min(windowSize.width, seatLayout.map.size.width)}
-            height={300}
-            options={{
-              backgroundColor: getHexNumber(seatLayout.map.background),
-            }}
-          >
-            <Viewport
-              viewportWidth={Math.min(
-                windowSize.width,
-                seatLayout.map.size.width,
-              )}
-              viewportHeight={300}
-              worldWidth={seatLayout.map.size.width}
-              worldHeight={seatLayout.map.size.height}
-            >
-              {seatLayout.seats.map((seat, seatIndex) => {
-                const rectangleColor = getHexNumber(seat.color);
-                return seat.rectangles.map((rectangle, rectangleIndex) => {
-                  const seatId = `${seatCategory[seatIndex]}${rectangleIndex}`;
+      <Content>
+        <InputHeader first>날짜</InputHeader>
+        <DatePicker
+          selected={date}
+          onChange={onChangeDate}
+          minDate={tommorrow()}
+        />
+        <InputHeader>시간</InputHeader>
+        <select value={time} onChange={e => setTime(e.target.value)}>
+          {timeOptions.map(timeOption => (
+            <option value={timeOption}>{timeOption}</option>
+          ))}
+        </select>
 
-                  return (
-                    <Rectangle
-                      key={`seat_${seatIndex}_${rectangleIndex}`}
-                      color={rectangleColor}
-                      {...rectangle}
-                      selected={selectedSeats.includes(seatId)}
-                      disabled={reservedSeats.includes(seatId)}
-                      onClick={() => {
-                        onSelectSeat(seatId);
-                      }}
-                    />
-                  );
-                });
-              })}
-            </Viewport>
-          </Stage>
-        </SeatWrapper>
-      ) : (
-        <Loader>
-          <Spinner />
-        </Loader>
-      )}
-      <InputHeader>선택 좌석</InputHeader>
-      <SelectedSeats>{selectedSeats.join(', ')}</SelectedSeats>
-      <Submit disabled={loading} onClick={onSubmit}>
-        예약
-      </Submit>
+        <InputHeader>좌석선택</InputHeader>
+        {seatLayout && !reservationsLoading ? (
+          <SeatWrapper>
+            <Stage
+              width={
+                windowSize.width >= 1100
+                  ? seatLayout.map.size.width
+                  : Math.min(windowSize.width, 425)
+              }
+              height={
+                windowSize.width >= 1100 ? seatLayout.map.size.height : 300
+              }
+              options={{
+                backgroundColor: getHexNumber(seatLayout.map.background),
+              }}
+              style={{
+                marginLeft:
+                  windowSize.width >= 1100
+                    ? 0
+                    : -(Math.min(windowSize.width, 425) - 320) / 2,
+              }}
+            >
+              <Viewport
+                viewportWidth={Math.min(
+                  windowSize.width,
+                  seatLayout.map.size.width,
+                )}
+                viewportHeight={
+                  windowSize.width >= 1100 ? seatLayout.map.size.height : 300
+                }
+                worldWidth={seatLayout.map.size.width}
+                worldHeight={seatLayout.map.size.height}
+              >
+                {seatLayout.seats.map((seat, seatIndex) => {
+                  const rectangleColor = getHexNumber(seat.color);
+                  return seat.rectangles.map((rectangle, rectangleIndex) => {
+                    const seatId = `${seatCategory[seatIndex]}${rectangleIndex}`;
+
+                    return (
+                      <Rectangle
+                        key={`seat_${seatIndex}_${rectangleIndex}`}
+                        color={rectangleColor}
+                        {...rectangle}
+                        selected={selectedSeats.includes(seatId)}
+                        disabled={reservedSeats.includes(seatId)}
+                        onClick={() => {
+                          onSelectSeat(seatId);
+                        }}
+                      />
+                    );
+                  });
+                })}
+              </Viewport>
+            </Stage>
+          </SeatWrapper>
+        ) : (
+          <Loader>
+            <Spinner />
+          </Loader>
+        )}
+        <InputHeader>선택 좌석</InputHeader>
+        <SelectedSeats>
+          {selectedSeats.length > 0 ? selectedSeats.join(', ') : '없음'}
+        </SelectedSeats>
+        <Buttons>
+          <Submit
+            disabled={selectedSeats.length === 0 || loading}
+            onClick={onSubmit}
+          >
+            예약
+          </Submit>
+        </Buttons>
+      </Content>
     </Container>
   );
 };
 
 const Container = styled.div`
   flex: 1;
-  flex-direction: column;
-  padding: 10px;
   margin-top: 40px;
+  background-color: ${colors.white};
+  @media (min-width: 1100px) {
+    height: calc(100vh - 80px);
+    margin-top: 80px;
+    padding-top: 40px;
+    background-color: ${colors.primary};
+    box-sizing: border-box;
+  }
+`;
+
+const Content = styled.div`
+  width: 320px;
+  margin: 0 auto;
+  padding: 10px;
+  box-sizing: border-box;
+  flex-direction: column;
+  @media (min-width: 1100px) {
+    width: 1100px;
+    border-radius: 12px;
+    background-color: ${colors.white};
+    padding: 40px;
+  }
 `;
 
 const InputHeader = styled.p<{ first?: boolean }>`
@@ -313,12 +357,23 @@ const Loader = styled.div`
 
 const SeatWrapper = styled.div`
   margin: 0 -10px;
+  @media (min-width: 1100px) {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
 `;
 
 const SelectedSeats = styled.p`
   font-size: 15px;
   line-height: 1.6;
   font-weight: 400;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 `;
 
 const Submit = styled.button`
@@ -331,7 +386,10 @@ const Submit = styled.button`
   line-height: 1.6;
   font-weight: bold;
   border: none;
-  margin-top: 100px;
+
+  @media (min-width: 1100px) {
+    width: 270px;
+  }
 
   &:disabled {
     background-color: ${colors.gray};
