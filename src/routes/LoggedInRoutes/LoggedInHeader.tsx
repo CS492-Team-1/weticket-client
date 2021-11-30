@@ -20,23 +20,22 @@ export const LoggedInHeader: React.FC = () => {
 
   return (
     <Container>
-      <Logo to="/reservation">WeTicket</Logo>
-      <Tickets
-        alt="reservations"
-        src={ticketIcon}
-        onClick={moveToReservations}
-      />
-      <Logout onClick={logout}>로그아웃</Logout>
+      <Content>
+        <Logo to="/reservation">WeTicket</Logo>
+        <Tickets
+          alt="reservations"
+          src={ticketIcon}
+          onClick={moveToReservations}
+        />
+        <Logout onClick={logout}>로그아웃</Logout>
+      </Content>
     </Container>
   );
 };
 
 const Container = styled.div`
   width: 100%;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
+
   background-color: ${colors.primary};
   position: fixed;
   top: 0;
@@ -45,18 +44,36 @@ const Container = styled.div`
   z-index: 1;
 `;
 
+const Content = styled.div`
+  display: flex;
+  height: 40px;
+  align-items: center;
+  padding: 0 10px;
+  @media (min-width: 1100px) {
+    width: 1100px;
+    height: 80px;
+    margin: 0 auto;
+  }
+`;
+
 const Logo = styled(Link)`
   font-size: 18px;
-  line-height: 21px;
+  line-height: 1.6;
   color: ${colors.white};
   font-weight: bold;
   text-decoration: none;
+  @media (min-width: 1100px) {
+    font-size: 32px;
+  }
 `;
 
 const Tickets = styled.img`
   height: 18px;
   margin-left: auto;
   cursor: pointer;
+  @media (min-width: 1100px) {
+    height: 30px;
+  }
 `;
 
 const Logout = styled.button`
@@ -65,8 +82,14 @@ const Logout = styled.button`
   background-color: ${colors.white};
   color: ${colors.primary};
   font-size: 6px;
-  line-height: 10px;
+  line-height: 1.6;
   font-weight: bold;
   border: none;
   margin-left: 10px;
+
+  @media (min-width: 1100px) {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin-left: 25px;
+  }
 `;
