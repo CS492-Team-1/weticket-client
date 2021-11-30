@@ -236,6 +236,7 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
             <option value={timeOption}>{timeOption}</option>
           ))}
         </select>
+
         <InputHeader>좌석선택</InputHeader>
         {seatLayout && !reservationsLoading ? (
           <SeatWrapper>
@@ -245,12 +246,17 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
                   ? seatLayout.map.size.width
                   : Math.min(windowSize.width, 425)
               }
-              height={300}
+              height={
+                windowSize.width >= 1100 ? seatLayout.map.size.height : 300
+              }
               options={{
                 backgroundColor: getHexNumber(seatLayout.map.background),
               }}
               style={{
-                marginLeft: -(Math.min(windowSize.width, 425) - 320) / 2,
+                marginLeft:
+                  windowSize.width >= 1100
+                    ? 0
+                    : -(Math.min(windowSize.width, 425) - 320) / 2,
               }}
             >
               <Viewport
@@ -258,7 +264,9 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
                   windowSize.width,
                   seatLayout.map.size.width,
                 )}
-                viewportHeight={300}
+                viewportHeight={
+                  windowSize.width >= 1100 ? seatLayout.map.size.height : 300
+                }
                 worldWidth={seatLayout.map.size.width}
                 worldHeight={seatLayout.map.size.height}
               >
@@ -293,12 +301,14 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
         <SelectedSeats>
           {selectedSeats.length > 0 ? selectedSeats.join(', ') : '없음'}
         </SelectedSeats>
-        <Submit
-          disabled={selectedSeats.length === 0 || loading}
-          onClick={onSubmit}
-        >
-          예약
-        </Submit>
+        <Buttons>
+          <Submit
+            disabled={selectedSeats.length === 0 || loading}
+            onClick={onSubmit}
+          >
+            예약
+          </Submit>
+        </Buttons>
       </Content>
     </Container>
   );
@@ -308,6 +318,13 @@ const Container = styled.div`
   flex: 1;
   margin-top: 40px;
   background-color: ${colors.white};
+  @media (min-width: 1100px) {
+    height: calc(100vh - 80px);
+    margin-top: 80px;
+    padding-top: 40px;
+    background-color: ${colors.primary};
+    box-sizing: border-box;
+  }
 `;
 
 const Content = styled.div`
@@ -316,6 +333,12 @@ const Content = styled.div`
   padding: 10px;
   box-sizing: border-box;
   flex-direction: column;
+  @media (min-width: 1100px) {
+    width: 1100px;
+    border-radius: 12px;
+    background-color: ${colors.white};
+    padding: 40px;
+  }
 `;
 
 const InputHeader = styled.p<{ first?: boolean }>`
@@ -334,12 +357,23 @@ const Loader = styled.div`
 
 const SeatWrapper = styled.div`
   margin: 0 -10px;
+  @media (min-width: 1100px) {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
 `;
 
 const SelectedSeats = styled.p`
   font-size: 15px;
   line-height: 1.6;
   font-weight: 400;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 `;
 
 const Submit = styled.button`
@@ -352,7 +386,10 @@ const Submit = styled.button`
   line-height: 1.6;
   font-weight: bold;
   border: none;
-  margin-top: 20px;
+
+  @media (min-width: 1100px) {
+    width: 270px;
+  }
 
   &:disabled {
     background-color: ${colors.gray};
