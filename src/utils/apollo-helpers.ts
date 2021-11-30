@@ -24,9 +24,10 @@ export type PreemptSeatOutputFieldPolicy = {
 	ok?: FieldPolicy<any> | FieldReadFunction<any>,
 	reservation?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type QueryKeySpecifier = ('me' | 'reservations' | QueryKeySpecifier)[];
+export type QueryKeySpecifier = ('me' | 'reservation' | 'reservations' | QueryKeySpecifier)[];
 export type QueryFieldPolicy = {
 	me?: FieldPolicy<any> | FieldReadFunction<any>,
+	reservation?: FieldPolicy<any> | FieldReadFunction<any>,
 	reservations?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type RegisterOutputKeySpecifier = ('error' | 'ok' | 'user' | RegisterOutputKeySpecifier)[];
@@ -43,6 +44,12 @@ export type ReservationFieldPolicy = {
 	status?: FieldPolicy<any> | FieldReadFunction<any>,
 	time?: FieldPolicy<any> | FieldReadFunction<any>,
 	user?: FieldPolicy<any> | FieldReadFunction<any>
+};
+export type ReservationOutputKeySpecifier = ('error' | 'ok' | 'reservation' | ReservationOutputKeySpecifier)[];
+export type ReservationOutputFieldPolicy = {
+	error?: FieldPolicy<any> | FieldReadFunction<any>,
+	ok?: FieldPolicy<any> | FieldReadFunction<any>,
+	reservation?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type ReservationsOutputKeySpecifier = ('error' | 'ok' | 'reservations' | ReservationsOutputKeySpecifier)[];
 export type ReservationsOutputFieldPolicy = {
@@ -95,6 +102,10 @@ export type TypedTypePolicies = TypePolicies & {
 	Reservation?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | ReservationKeySpecifier | (() => undefined | ReservationKeySpecifier),
 		fields?: ReservationFieldPolicy,
+	},
+	ReservationOutput?: Omit<TypePolicy, "fields" | "keyFields"> & {
+		keyFields?: false | ReservationOutputKeySpecifier | (() => undefined | ReservationOutputKeySpecifier),
+		fields?: ReservationOutputFieldPolicy,
 	},
 	ReservationsOutput?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | ReservationsOutputKeySpecifier | (() => undefined | ReservationsOutputKeySpecifier),
