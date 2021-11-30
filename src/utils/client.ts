@@ -88,7 +88,13 @@ export type PreemptSeatOutput = {
 export type Query = {
   __typename?: 'Query';
   me: User;
+  reservation: ReservationOutput;
   reservations: ReservationsOutput;
+};
+
+
+export type QueryReservationArgs = {
+  input: ReservationInput;
 };
 
 
@@ -116,6 +122,17 @@ export type Reservation = {
   status: ReservationStatus;
   time: Scalars['DateTime'];
   user: User;
+};
+
+export type ReservationInput = {
+  reservationId: Scalars['String'];
+};
+
+export type ReservationOutput = {
+  __typename?: 'ReservationOutput';
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+  reservation?: Maybe<Reservation>;
 };
 
 export enum ReservationStatus {
@@ -251,6 +268,23 @@ export type CanceledReservationOnTimeSubscription = (
   & { canceledReservationOnTime: (
     { __typename?: 'Reservation' }
     & Pick<Reservation, 'id' | 'seats'>
+  ) }
+);
+
+export type ReservationQueryVariables = Exact<{
+  input: ReservationInput;
+}>;
+
+
+export type ReservationQuery = (
+  { __typename?: 'Query' }
+  & { reservation: (
+    { __typename?: 'ReservationOutput' }
+    & Pick<ReservationOutput, 'ok' | 'error'>
+    & { reservation?: Maybe<(
+      { __typename?: 'Reservation' }
+      & Pick<Reservation, 'id' | 'seats' | 'time' | 'status' | 'preemptedAt'>
+    )> }
   ) }
 );
 
@@ -510,6 +544,49 @@ export function useCanceledReservationOnTimeSubscription(baseOptions: Apollo.Sub
       }
 export type CanceledReservationOnTimeSubscriptionHookResult = ReturnType<typeof useCanceledReservationOnTimeSubscription>;
 export type CanceledReservationOnTimeSubscriptionResult = Apollo.SubscriptionResult<CanceledReservationOnTimeSubscription>;
+export const ReservationDocument = gql`
+    query reservation($input: ReservationInput!) {
+  reservation(input: $input) {
+    ok
+    error
+    reservation {
+      id
+      seats
+      time
+      status
+      preemptedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useReservationQuery__
+ *
+ * To run a query within a React component, call `useReservationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useReservationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useReservationQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useReservationQuery(baseOptions: Apollo.QueryHookOptions<ReservationQuery, ReservationQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ReservationQuery, ReservationQueryVariables>(ReservationDocument, options);
+      }
+export function useReservationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ReservationQuery, ReservationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ReservationQuery, ReservationQueryVariables>(ReservationDocument, options);
+        }
+export type ReservationQueryHookResult = ReturnType<typeof useReservationQuery>;
+export type ReservationLazyQueryHookResult = ReturnType<typeof useReservationLazyQuery>;
+export type ReservationQueryResult = Apollo.QueryResult<ReservationQuery, ReservationQueryVariables>;
 export const CancelReservationDocument = gql`
     mutation cancelReservation($input: CancelReservationInput!) {
   cancelReservation(input: $input) {
