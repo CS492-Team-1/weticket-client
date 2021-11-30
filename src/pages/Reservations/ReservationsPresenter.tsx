@@ -5,7 +5,6 @@ import { gql } from '@apollo/client';
 
 import { Reservation, ReservationStatus, useMeQuery } from '../../utils/client';
 import { Spinner } from '../../components';
-import { LoggedInHeader } from '../../routes/LoggedInRoutes/LoggedInHeader';
 
 gql`
   query me {
@@ -34,7 +33,9 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
 }) => {
   const { data, loading } = useMeQuery();
   const [clicked, setClicked] = useState('');
+  const [modal, setModal] = useState({isOpen:false, isCancel:false});
   const [reservations, setReservations] = useState(data?.me.reservations || []);
+  const scrollY = useRef(0);
   const preempted = reservations.filter(
     reservation => reservation.status === ReservationStatus.Preempted,
   );
@@ -45,7 +46,6 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
 
   useEffect(() => {
     setReservations(reservations => data?.me.reservations || []);
-    return;
   }, [loading]);
 
   const timeParser = (
@@ -58,6 +58,41 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
     result = result.substring(0, result.lastIndexOf(':'));
     return result;
   };
+
+  const ReservationModal:React.FC<{reservationID:string, isCancel:boolean}> = ({reservationID,isCancel})=>{
+    useEffect(()=>{
+      return ()=>{window.scrollTo(0, scrollY.current);}
+    }
+    ,[])
+    return <>
+    <ModalLid>
+      <Text className="modalLid">공연명</Text>
+    </ModalLid>
+    <ModalBottom>
+      <Text className = 'message'>예약을 {isCancel?"취소":"확정"}하시겠습니까?</Text>
+      <Button className='modalYes' onClick={async()=>{
+        isCancel? await cancelReservation(reservationID):await reserveSeat(reservationID);
+        setClicked('');
+        isCancel? setReservations(reservations =>
+          reservations.filter(
+            reserved => reserved.id !== reservationID,
+          ),
+        ):setReservations(reservations => {
+          let confirmed = Object.assign({}, reservations.find(reserved => reserved.id === reservationID));
+          confirmed.status = ReservationStatus.Reserved;
+          return [
+            ...reservations.filter(
+              preempted => preempted.id !== reservationID,
+            ),
+            confirmed,
+          ];
+        });
+        setModal({isOpen:false, isCancel:false});
+        }}>예</Button>
+      <Button className='modalNo'onClick={()=>setModal({isOpen:false, isCancel:false})}>아니오</Button>
+    </ModalBottom>
+    </> 
+  }
 
   const ReservationBlock = (
     reservation: {
@@ -90,33 +125,19 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
                   </Text>
                   <Button
                     className="reservation"
-                    onClick={async () => {
-                      await reserveSeat(reservation.id);
-                      setReservations(reservations => {
-                        let confirmed = Object.assign({}, reservation);
-                        confirmed.status = ReservationStatus.Reserved;
-                        return [
-                          ...reservations.filter(
-                            preempted => preempted.id !== reservation.id,
-                          ),
-                          confirmed,
-                        ];
-                      });
-                      setClicked('');
+                    onClick={() => {
+                      scrollY.current = window.scrollY;
+                      setModal({isOpen:true, isCancel:false});
                     }}
                   >
                     예약 확정
                   </Button>
+                  
                   <Button
                     className="cancelPreempted"
-                    onClick={async () => {
-                      await cancelReservation(reservation.id);
-                      setReservations(reservations =>
-                        reservations.filter(
-                          reserved => reserved.id !== reservation.id,
-                        ),
-                      );
-                      setClicked('');
+                    onClick={() => {
+                      scrollY.current= window.scrollY;
+                      setModal({isOpen:true, isCancel:true});
                     }}
                   >
                     예약 취소
@@ -132,14 +153,9 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
                   </Text>
                   <Button
                     className="cancelReserved"
-                    onClick={async () => {
-                      await cancelReservation(reservation.id);
-                      setReservations(reservations =>
-                        reservations.filter(
-                          reserved => reserved.id !== reservation.id,
-                        ),
-                      );
-                      setClicked('');
+                    onClick={() => {
+                      scrollY.current= window.scrollY;
+                      setModal({isOpen:true, isCancel:true});
                     }}
                   >
                     예약 취소
@@ -155,18 +171,20 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
   const loadingScreen = <Spinner />;
 
   const LoadedScreen = (
-    <SContainer>
-      {preempted.length !== 0 && '예약 미완료'}
-      {preempted.map(reservation => ReservationBlock(reservation))}
-      {reserved.length !== 0 && '예약 완료'}
-      {reserved.map(reservation => ReservationBlock(reservation))}
-    </SContainer>
+      <SContainer>
+        {preempted.length !== 0 && '예약 미완료'}
+        {preempted.map(reservation => ReservationBlock(reservation))}
+        {reserved.length !== 0 && '예약 완료'}
+        {reserved.map(reservation => ReservationBlock(reservation))}
+      </SContainer>
   );
 
   return (
     <>
-      <LoggedInHeader />
+    {modal.isOpen&&(<ReservationModal reservationID={clicked} isCancel={modal.isCancel}/>)}
+    <BackgroundBlur isVisible={modal.isOpen}>
       {loading ? loadingScreen : LoadedScreen}
+    </BackgroundBlur>
     </>
   );
 };
@@ -199,6 +217,10 @@ const handleText = (className: string) => {
       return `color: ${colors.white};line-height: 14px;margin-top: 8px; font-size:12px`;
     case 'seat':
       return `padding-top: 38px;line-height: 16px;`;
+    case 'modalLid':
+      return `font-size: 20px; color: ${colors.white};line-height:23px; margin-top: 17px`;
+    case 'message':
+      return `font-size: 15px; color: ${colors.black}; grid-area:message; padding-left:0px`;
     default:
       return '';
   }
@@ -236,6 +258,10 @@ const handleButton = (className: string) => {
       width:288px;
       margin-left: 8px;
       `;
+    case 'modalYes':
+      return `border-color: ${colors.black};background:${colors.white};grid-area:buttonYes;color: ${colors.black};width:100%;height:100%;margin-top:0px`;
+    case 'modalNo':
+      return `border-color: ${colors.black};background:${colors.white};grid-area:buttonNo;color: ${colors.black};width:100%;height:100%;margin-top:0px`;
     default:
       return '';
   }
@@ -249,7 +275,6 @@ const Button = styled.button<{ className: string }>`
   border-radius: 6px;
   color: ${colors.white};
   font-weight: bold;
-
   ${props => props.className && handleButton(props.className)}
 `;
 
@@ -265,3 +290,47 @@ const SContainer = styled.div`
   padding-top: 8px;
   z-index: -1;
 `;
+
+const BackgroundBlur = styled.div<{isVisible:boolean}>`
+    position: absolute;
+    width:100%;
+    height:100%;
+    z-index: 0;
+    ${props=>props.isVisible&&`backdrop-filter: blur(8px);opacity:0.2;pointer-events:none;  position:fixed; bottom:${window.scrollY}px;`}
+`;
+
+const ModalLid = styled.div`
+  position:fixed;
+  width:280px;
+  height:57px;
+  background: ${colors.primary};
+  z-index: 30;
+  border-radius: 6px 6px 0px 0px;
+  top:35%;
+  left: 20px;
+`
+
+const ModalBottom = styled.div`
+  position:fixed;
+  box-sizing: border-box;
+  width:280px;
+  height:215px;
+  top:35%;
+  background: ${colors.white};
+  border-radius: 6px;
+  z-index: 29;
+  left: 20px;
+  outline-width: 1px;
+  outline: solid;
+  display: grid;
+  padding-top: 63px;
+  padding-bottom: 6px;
+  grid-template:
+  "message message" 1fr
+  "buttonYes buttonNo" 1fr
+  /1fr 1fr; 
+  gap: 6px;
+  padding-left: 6px;
+  padding-right: 6px;
+  justify-items: center;
+`
