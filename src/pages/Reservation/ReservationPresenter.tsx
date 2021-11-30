@@ -223,78 +223,96 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
 
   return (
     <Container>
-      <InputHeader first>날짜</InputHeader>
-      <DatePicker
-        selected={date}
-        onChange={onChangeDate}
-        minDate={tommorrow()}
-      />
-      <InputHeader>시간</InputHeader>
-      <select value={time} onChange={e => setTime(e.target.value)}>
-        {timeOptions.map(timeOption => (
-          <option value={timeOption}>{timeOption}</option>
-        ))}
-      </select>
-      <InputHeader>좌석선택</InputHeader>
-      {seatLayout && !reservationsLoading ? (
-        <SeatWrapper>
-          <Stage
-            width={Math.min(windowSize.width, seatLayout.map.size.width)}
-            height={300}
-            options={{
-              backgroundColor: getHexNumber(seatLayout.map.background),
-            }}
-          >
-            <Viewport
-              viewportWidth={Math.min(
-                windowSize.width,
-                seatLayout.map.size.width,
-              )}
-              viewportHeight={300}
-              worldWidth={seatLayout.map.size.width}
-              worldHeight={seatLayout.map.size.height}
+      <Content>
+        <InputHeader first>날짜</InputHeader>
+        <DatePicker
+          selected={date}
+          onChange={onChangeDate}
+          minDate={tommorrow()}
+        />
+        <InputHeader>시간</InputHeader>
+        <select value={time} onChange={e => setTime(e.target.value)}>
+          {timeOptions.map(timeOption => (
+            <option value={timeOption}>{timeOption}</option>
+          ))}
+        </select>
+        <InputHeader>좌석선택</InputHeader>
+        {seatLayout && !reservationsLoading ? (
+          <SeatWrapper>
+            <Stage
+              width={
+                windowSize.width >= 1100
+                  ? seatLayout.map.size.width
+                  : Math.min(windowSize.width, 425)
+              }
+              height={300}
+              options={{
+                backgroundColor: getHexNumber(seatLayout.map.background),
+              }}
+              style={{
+                marginLeft: -(Math.min(windowSize.width, 425) - 320) / 2,
+              }}
             >
-              {seatLayout.seats.map((seat, seatIndex) => {
-                const rectangleColor = getHexNumber(seat.color);
-                return seat.rectangles.map((rectangle, rectangleIndex) => {
-                  const seatId = `${seatCategory[seatIndex]}${rectangleIndex}`;
+              <Viewport
+                viewportWidth={Math.min(
+                  windowSize.width,
+                  seatLayout.map.size.width,
+                )}
+                viewportHeight={300}
+                worldWidth={seatLayout.map.size.width}
+                worldHeight={seatLayout.map.size.height}
+              >
+                {seatLayout.seats.map((seat, seatIndex) => {
+                  const rectangleColor = getHexNumber(seat.color);
+                  return seat.rectangles.map((rectangle, rectangleIndex) => {
+                    const seatId = `${seatCategory[seatIndex]}${rectangleIndex}`;
 
-                  return (
-                    <Rectangle
-                      key={`seat_${seatIndex}_${rectangleIndex}`}
-                      color={rectangleColor}
-                      {...rectangle}
-                      selected={selectedSeats.includes(seatId)}
-                      disabled={reservedSeats.includes(seatId)}
-                      onClick={() => {
-                        onSelectSeat(seatId);
-                      }}
-                    />
-                  );
-                });
-              })}
-            </Viewport>
-          </Stage>
-        </SeatWrapper>
-      ) : (
-        <Loader>
-          <Spinner />
-        </Loader>
-      )}
-      <InputHeader>선택 좌석</InputHeader>
-      <SelectedSeats>{selectedSeats.join(', ')}</SelectedSeats>
-      <Submit disabled={loading} onClick={onSubmit}>
-        예약
-      </Submit>
+                    return (
+                      <Rectangle
+                        key={`seat_${seatIndex}_${rectangleIndex}`}
+                        color={rectangleColor}
+                        {...rectangle}
+                        selected={selectedSeats.includes(seatId)}
+                        disabled={reservedSeats.includes(seatId)}
+                        onClick={() => {
+                          onSelectSeat(seatId);
+                        }}
+                      />
+                    );
+                  });
+                })}
+              </Viewport>
+            </Stage>
+          </SeatWrapper>
+        ) : (
+          <Loader>
+            <Spinner />
+          </Loader>
+        )}
+        <InputHeader>선택 좌석</InputHeader>
+        <SelectedSeats>
+          {selectedSeats.length > 0 ? selectedSeats.join(', ') : '없음'}
+        </SelectedSeats>
+        <Submit disabled={loading} onClick={onSubmit}>
+          예약
+        </Submit>
+      </Content>
     </Container>
   );
 };
 
 const Container = styled.div`
   flex: 1;
-  flex-direction: column;
-  padding: 10px;
   margin-top: 40px;
+  background-color: ${colors.white};
+`;
+
+const Content = styled.div`
+  width: 320px;
+  margin: 0 auto;
+  padding: 10px;
+  box-sizing: border-box;
+  flex-direction: column;
 `;
 
 const InputHeader = styled.p<{ first?: boolean }>`
@@ -331,7 +349,7 @@ const Submit = styled.button`
   line-height: 1.6;
   font-weight: bold;
   border: none;
-  margin-top: 100px;
+  margin-top: 20px;
 
   &:disabled {
     background-color: ${colors.gray};
