@@ -64,27 +64,12 @@ export const ReservationConfirmPresenter: React.FC<ReservationConfirmPresenterPr
 
     const onPressConfirm = async () => {
       if (reserveLoading) return;
-
-      try {
-        await reserveSeat(id);
-        window.alert('예약이 확정되었습니다.');
-        history.push('/reservations');
-      } catch (err) {
-        window.alert(err);
-        history.push('/reservation');
-      }
+      await reserveSeat(id);
     };
 
     const onPressCancel = async () => {
       if (cancelLoading) return;
-
-      try {
-        await cancelReservation(id);
-        window.alert('예약이 취소되었습니다.');
-        history.push('/reservation');
-      } catch (err) {
-        window.alert(err);
-      }
+      await cancelReservation(id);
     };
 
     return loading ? (
