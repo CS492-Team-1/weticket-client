@@ -172,6 +172,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
 
   const LoadedScreen = (
       <SContainer>
+        {reservations.length === 0 && <Text className="message">완료된 예약이 없습니다</Text>}
         {preempted.length !== 0 && '예약 미완료'}
         {preempted.map(reservation => ReservationBlock(reservation))}
         {reserved.length !== 0 && '예약 완료'}
@@ -212,7 +213,7 @@ const handleText = (className: string) => {
     case 'location':
       return 'line-height: 12px;padding-top: 4px;';
     case 'date':
-      return 'padding-top: 2px;line-height: 16px;left: 160px;';
+      return 'padding-top: 2px;line-height: 16px;padding-left:160px;';
     case 'title':
       return `color: ${colors.white};line-height: 14px;margin-top: 8px; font-size:12px`;
     case 'seat':
@@ -237,7 +238,7 @@ const Text = styled.h1<{ className: string }>`
 const VerticalLine = styled.div`
   position: absolute;
   height: 24px;
-  left: 160px;
+  margin-left: 153px;
   margin-top: 6px;
   border: 1px solid ${colors.primary_light};
 `;
@@ -288,7 +289,9 @@ const SContainer = styled.div`
   font-size: 12px;
   padding-left: 8px;
   padding-top: 8px;
+  align-items: center;
   z-index: -1;
+
 `;
 
 const BackgroundBlur = styled.div<{isVisible:boolean}>`
@@ -307,7 +310,7 @@ const ModalLid = styled.div`
   z-index: 30;
   border-radius: 6px 6px 0px 0px;
   top:35%;
-  left: 20px;
+  left: calc(50vw - 140px);
 `
 
 const ModalBottom = styled.div`
@@ -319,7 +322,7 @@ const ModalBottom = styled.div`
   background: ${colors.white};
   border-radius: 6px;
   z-index: 29;
-  left: 20px;
+  left: calc(50vw - 140px);
   outline-width: 1px;
   outline: solid;
   display: grid;
@@ -332,5 +335,4 @@ const ModalBottom = styled.div`
   gap: 6px;
   padding-left: 6px;
   padding-right: 6px;
-  justify-items: center;
 `
