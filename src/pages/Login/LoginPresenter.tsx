@@ -13,6 +13,10 @@ type LoginPresenterProps = {
   register: (username: string, password:string, togglePage: ()=>void ) => void;
 };
 
+interface StyledProps {
+  height: string;
+}
+
 type LoginProps = {
   username: string;
   password: string;
@@ -67,7 +71,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
   const LoginPage = (
     <SContainer>
       <Title>WeTicket</Title>
-      <LogInContainer>
+      <LogInContainer height = "430px">
         <SubTitle>LogIn</SubTitle>
         <HorizonLine/>
         <LoginForm onSubmit= {loginSubmit(onSubmit)}>
@@ -76,7 +80,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
           <ErrorMessages>{loginErrors.username && loginErrors.username?.message}</ErrorMessages>
 
           <PwBox {...loginInputs("password", {required: {value: true, message: "비밀번호를 입력해주세요!"}})}></PwBox>
-          <ErrorMessages>{loginErrors.password && loginErrors.password?.message}</ErrorMessages>
+          <ErrorMessages>{ !loginErrors.username && loginErrors.password && loginErrors.password?.message}</ErrorMessages>
 
           <SubmitButton>로그인</SubmitButton>
 
@@ -91,7 +95,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
   const RegisterPage = (
     <SContainer>
       <Title>WeTicket</Title>
-      <LogInContainer>
+      <LogInContainer height = "500px">
         <SubTitle>회원가입</SubTitle>
         <HorizonLine/>
         <LoginForm onSubmit= {registerSubmit(onSubmitRegister)}>
@@ -150,6 +154,7 @@ const SContainer = styled.div`
   align-items: center;
   text-align: center;
   background-color: ${colors.primary};
+
   a {
     display: content;
   }
@@ -163,6 +168,10 @@ const Title = styled.h1`
   font-size: 30px;
   font-weight: 600;
   margin-bottom: 20px;
+  @media (min-width: 1100px) {
+    font-size: 36px;
+    margin-bottom: 50px;
+  }
 `;
 
 const SubTitle = styled.h2`
@@ -171,10 +180,15 @@ const SubTitle = styled.h2`
   font-size: 18px;
   font-weight: 500;
   margin-top: 30px;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
+  @media (min-width: 1100px) {
+    font-size: 24px;
+    margin-bottom: 0px;
+    margin-top: 20px;
+  }
 `;
 
-const LogInContainer = styled.div`
+const LogInContainer = styled.div<StyledProps>`
   display: flex;
   flex-direction: column;
   justify-items: center;
@@ -183,6 +197,12 @@ const LogInContainer = styled.div`
   height: 350px;
   border-radius: 15px;
   background-color: ${colors.white};
+  @media (min-width: 1100px) {
+    padding: 50px;
+    width: 430px;
+    height: ${props => props.height || '500px'};
+    align-items: start;
+  }
 `;
 
 const HorizonLine = styled.hr`
@@ -190,6 +210,9 @@ const HorizonLine = styled.hr`
   display: flex;
   border-top: 1px solid ${colors.black};
   margin-bottom: 20px;
+  @media (min-width: 1100px) {
+    border: none;
+  }
 `;
 
 const LoginForm = styled.form`
@@ -197,6 +220,9 @@ const LoginForm = styled.form`
   border-color: none;
   border-style: none;
   width: 230px;
+  @media (min-width: 1100px) {
+    width: 430px;
+  }
 `;
 
 const Button = styled.button`
@@ -206,6 +232,11 @@ const Button = styled.button`
   width: 230px;
   height: 30px;
   margin: 6px;
+  @media (min-width: 1100px) {
+    height: 40px;
+    width: 430px;
+    margin-top: 20px;
+  }
 `;
 
 const SubmitButton = styled(Button)`
@@ -244,9 +275,18 @@ const InputBox = styled.input`
   width: 230px;
   text-align: center;
   height: 30px;
-  margin: 3px;
+  margin-bottom: 3px;
   border-style: solid;
   border-width: thin;
+  @media (min-width: 1100px) {
+    text-align: start;
+    width: 425px;
+    height: 50px;
+    border-style: none;
+    border-bottom-style: solid;
+    padding-left: 10px;
+    margin-top: 10px;
+  }
 `;
 
 
