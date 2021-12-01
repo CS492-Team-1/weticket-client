@@ -109,12 +109,12 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
         </BlockLid>
         <BlockBottom isClicked={clicked === reservation.id}>
           <Text className="location">장소</Text>
+          <VerticalLine />
           <Text className="date">
             시각
             <br />
             {timeParser(reservation)}
           </Text>
-          <VerticalLine />
           {reservation.status === ReservationStatus.Preempted
             ? clicked === reservation.id && (
                 <>
@@ -172,10 +172,11 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
 
   const LoadedScreen = (
       <SContainer>
-        {preempted.length !== 0 && '예약 미완료'}
-        {preempted.map(reservation => ReservationBlock(reservation))}
-        {reserved.length !== 0 && '예약 완료'}
-        {reserved.map(reservation => ReservationBlock(reservation))}
+        {reservations.length === 0 && <ReservationsText>완료된 예약이 없습니다</ReservationsText>}
+        {preempted.length !== 0 && <ReservationsText>예약 미완료</ReservationsText>}
+        <ReservationsWrapper>{preempted.map(reservation => ReservationBlock(reservation))}</ReservationsWrapper>
+        {reserved.length !== 0 && <ReservationsText>예약 완료</ReservationsText>}
+        <ReservationsWrapper>{reserved.map(reservation => ReservationBlock(reservation))}</ReservationsWrapper>
       </SContainer>
   );
 
@@ -195,6 +196,11 @@ const BlockLid = styled.div`
   margin-right: 8px;
   border-radius: 6px 6px 0px 0px;
   background: ${colors.primary};
+  @media (min-width: 1100px) {
+    padding-top: 5px;
+    width: 350px;
+    height: 40px;
+  }
 `;
 
 const BlockBottom = styled.div<{ isClicked: boolean }>`
@@ -205,6 +211,10 @@ const BlockBottom = styled.div<{ isClicked: boolean }>`
   margin-right: 8px;
   background: ${colors.gray};
   border-radius: 0px 0px 6px 6px;
+  @media (min-width: 1100px) {
+    width: 350px;
+    height: ${props => (props.isClicked ? '164px' : '52px')};
+  }
 `;
 
 const handleText = (className: string) => {
@@ -212,15 +222,22 @@ const handleText = (className: string) => {
     case 'location':
       return 'line-height: 12px;padding-top: 4px;';
     case 'date':
-      return 'padding-top: 2px;line-height: 16px;left: 160px;';
+      return 'padding-top: 2px;line-height: 16px;padding-left:160px;';
     case 'title':
-      return `color: ${colors.white};line-height: 14px;margin-top: 8px; font-size:12px`;
+      return `color: ${colors.white};line-height: 14px;margin-top: 8px; font-size:12px;@media (min-width: 1100px) {
+        font-size:20px;
+      }`;
     case 'seat':
       return `padding-top: 38px;line-height: 16px;`;
     case 'modalLid':
-      return `font-size: 20px; color: ${colors.white};line-height:23px; margin-top: 17px`;
+      return `color: ${colors.white};font-size:16px;@media (min-width: 1100px) {
+        font-size:24px;
+      }`;
     case 'message':
-      return `font-size: 15px; color: ${colors.black}; grid-area:message; padding-left:0px`;
+      return `font-size: 15px; color: ${colors.black}; grid-area:message; padding-left:0px;
+      @media (min-width: 1100px) {
+        font-size:24px;
+      }`;
     default:
       return '';
   }
@@ -228,16 +245,18 @@ const handleText = (className: string) => {
 
 const Text = styled.h1<{ className: string }>`
   position: absolute;
-  height: 12px;
   padding-left: 8px;
   font-size: 10px;
+  @media (min-width: 1100px) {
+    font-size:16px;
+  }
   ${props => props.className && handleText(props.className)}
 `;
 
 const VerticalLine = styled.div`
   position: absolute;
   height: 24px;
-  left: 160px;
+  margin-left: 153px;
   margin-top: 6px;
   border: 1px solid ${colors.primary_light};
 `;
@@ -246,22 +265,21 @@ const handleButton = (className: string) => {
   switch (className) {
     case 'reservation':
       return `border-color: ${colors.success}; background:${colors.success};
-      margin-left: 8px;
-      width: 139px;`;
+      margin-right:4px;
+      width: 100%;`;
     case 'cancelPreempted':
       return `border-color: ${colors.error};background:${colors.error}; 
       float:left;
-      margin-left: 12px;
-      width: 139px;`;
+      margin-left: 4px;
+      width: 100%;`;
     case 'cancelReserved':
       return `border-color: ${colors.error};background:${colors.error};
-      width:288px;
-      margin-left: 8px;
+      width:100%;
       `;
     case 'modalYes':
-      return `border-color: ${colors.black};background:${colors.white};grid-area:buttonYes;color: ${colors.black};width:100%;height:100%;margin-top:0px`;
+      return `border-color: ${colors.black};background:${colors.white};grid-area:buttonYes;color: ${colors.black};height:100%;margin-top:0px`;
     case 'modalNo':
-      return `border-color: ${colors.black};background:${colors.white};grid-area:buttonNo;color: ${colors.black};width:100%;height:100%;margin-top:0px`;
+      return `border-color: ${colors.black};background:${colors.white};grid-area:buttonNo;color: ${colors.black};height:100%;margin-top:0px`;
     default:
       return '';
   }
@@ -272,9 +290,17 @@ const Button = styled.button<{ className: string }>`
   height: 41px;
   box-sizing: border-box;
   margin-top: 75px;
+  width: 100%;
   border-radius: 6px;
+  margin-left: 8px;
+  margin-right: 8px;
   color: ${colors.white};
   font-weight: bold;
+  @media (min-width: 1100px) {
+    margin-top: 96px;
+    height: 62px;
+    font-size:20px;
+  }
   ${props => props.className && handleButton(props.className)}
 `;
 
@@ -282,24 +308,48 @@ const SContainer = styled.div`
   margin-top: 40px;
   display: flex;
   flex-direction: column;
-  grid-row-gap: 8px;
   font-style: normal;
   font-weight: bold;
   font-size: 12px;
+  row-gap: 8px;
   padding-left: 8px;
   padding-top: 8px;
+  align-items: center;
   z-index: -1;
+  @media (min-width: 1100px) {
+    width: 1100px;
+    border-radius: 12px;  
+    background-color: ${colors.white};
+    box-sizing: border-box;
+    row-gap: 20px;
+    margin-bottom: 40px;
+  }
 `;
 
 const BackgroundBlur = styled.div<{isVisible:boolean}>`
     position: absolute;
     width:100%;
-    height:100%;
     z-index: 0;
-    ${props=>props.isVisible&&`backdrop-filter: blur(8px);opacity:0.2;pointer-events:none;  position:fixed; bottom:${window.scrollY}px;`}
+    @media (min-width: 1100px) {
+      padding-top:80px;
+      background-color: ${colors.primary};
+      box-sizing: border-box;
+      justify-content: center;
+      display:flex;
+    }
+    ${props=>props.isVisible&&`backdrop-filter: blur(8px);opacity:0.2;pointer-events:none;  position:fixed; top:-${window.scrollY}px;`}
 `;
 
+
+const ReservationsText = styled.h1`
+  font-size: 16px;
+  @media (min-width: 1100px) {
+    font-size: 24px;
+  }
+`
 const ModalLid = styled.div`
+  display: flex;
+  align-items:center;
   position:fixed;
   width:280px;
   height:57px;
@@ -307,7 +357,12 @@ const ModalLid = styled.div`
   z-index: 30;
   border-radius: 6px 6px 0px 0px;
   top:35%;
-  left: 20px;
+  left: calc(50vw - 140px);
+  @media (min-width: 1100px) {
+    left: calc(50vw - 200px);
+    width: 400px;
+    height: 100px;
+  }
 `
 
 const ModalBottom = styled.div`
@@ -319,7 +374,7 @@ const ModalBottom = styled.div`
   background: ${colors.white};
   border-radius: 6px;
   z-index: 29;
-  left: 20px;
+  left: calc(50vw - 140px);
   outline-width: 1px;
   outline: solid;
   display: grid;
@@ -332,5 +387,24 @@ const ModalBottom = styled.div`
   gap: 6px;
   padding-left: 6px;
   padding-right: 6px;
-  justify-items: center;
+  justify-items:center;
+  @media (min-width: 1100px) {
+    left: calc(50vw - 200px);
+    width: 400px;
+    height: 400px;
+    padding-top: 108px;
+    font-size: 32px;
+  }
+`
+const ReservationsWrapper = styled.div`
+  display: flex;
+  row-gap: 8px;
+  flex-direction: column;
+  margin-bottom: 8px;
+  @media (min-width: 1100px) {
+    display:grid;
+    row-gap: 16px;
+    grid-template-columns: repeat(3,minmax(350px, auto));
+    margin-bottom: 16px;
+  }
 `
