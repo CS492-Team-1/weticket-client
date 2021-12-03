@@ -248,13 +248,9 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
           <SeatWrapper>
             <Stage
               width={
-                windowSize.width >= 1100
-                  ? seatLayout.map.size.width
-                  : Math.min(windowSize.width, 425)
+                windowSize.width >= 1100 ? 895 : Math.min(windowSize.width, 425)
               }
-              height={
-                windowSize.width >= 1100 ? seatLayout.map.size.height : 300
-              }
+              height={windowSize.width >= 1100 ? 580 : 300}
               options={{
                 backgroundColor: getHexNumber(seatLayout.map.background),
               }}
@@ -266,15 +262,10 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
               }}
             >
               <Viewport
-                viewportWidth={Math.min(
-                  windowSize.width,
-                  seatLayout.map.size.width,
-                )}
-                viewportHeight={
-                  windowSize.width >= 1100 ? seatLayout.map.size.height : 300
-                }
-                worldWidth={seatLayout.map.size.width}
-                worldHeight={seatLayout.map.size.height}
+                viewportWidth={Math.min(895, seatLayout.map.size.width)}
+                viewportHeight={windowSize.width >= 1100 ? 580 : 300}
+                worldWidth={895}
+                worldHeight={580}
                 onManipulationStart={() => setManipulating(true)}
                 onManipulationEnd={() => setManipulating(false)}
               >
