@@ -94,6 +94,7 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
 
   const [reservationsQuery, { loading: reservationsLoading }] =
     useReservationsLazyQuery({
+      fetchPolicy: 'cache-and-network',
       onCompleted: data => {
         const {
           reservations: { ok, error, reservations },
@@ -165,6 +166,7 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
     },
     onSubscriptionData: ({ subscriptionData: { data } }) => {
       if (data?.newReservationOnTime.seats) {
+        console.log(data.newReservationOnTime.seats);
         setReservedSeats(prev => [...prev, ...data.newReservationOnTime.seats]);
       }
     },
