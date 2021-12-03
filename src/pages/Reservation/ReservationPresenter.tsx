@@ -1,7 +1,8 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
+import ko from 'date-fns/locale/ko';
 import React from 'react';
-import DatePicker from 'react-datepicker';
+import DatePicker, { registerLocale } from 'react-datepicker';
 import styled from 'styled-components';
 
 import { gql } from '@apollo/client';
@@ -16,6 +17,8 @@ import {
 } from '../../utils/client';
 import { Rectangle } from './Rectangle';
 import { Viewport } from './Viewport';
+
+registerLocale('ko', ko);
 
 gql`
   query reservations($input: ReservationsInput!) {
@@ -230,6 +233,8 @@ export const ReservationPresenter: React.FC<ReservationPresenterProps> = ({
           selected={date}
           onChange={onChangeDate}
           minDate={tommorrow()}
+          locale="ko"
+          dateFormat="yyyy-MM-dd"
         />
         <InputHeader>시간</InputHeader>
         <select value={time} onChange={e => setTime(e.target.value)}>
