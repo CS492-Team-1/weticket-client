@@ -31,7 +31,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
   cancelReservation,
   reserveSeat,
 }) => {
-  const { data, loading } = useMeQuery();
+  const { data, loading, refetch } = useMeQuery();
   const [clicked, setClicked] = useState('');
   const [modal, setModal] = useState({isOpen:false, isCancel:false});
   const [reservations, setReservations] = useState(data?.me.reservations || []);
@@ -48,6 +48,9 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
     setReservations(reservations => data?.me.reservations || []);
   }, [loading]);
 
+  useEffect(()=>{
+    refetch()
+  },[])
   const timeParser = (
     reservation: {
       __typename?: 'Reservation' | undefined;
