@@ -31,7 +31,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
   cancelReservation,
   reserveSeat,
 }) => {
-  const { data, loading } = useMeQuery();
+  const { data, loading, refetch } = useMeQuery({ notifyOnNetworkStatusChange : true });
   const [clicked, setClicked] = useState('');
   const [modal, setModal] = useState({isOpen:false, isCancel:false});
   const [reservations, setReservations] = useState(data?.me.reservations || []);
@@ -43,6 +43,10 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
   const reserved = reservations.filter(
     reservation => reservation.status === ReservationStatus.Reserved,
   );
+  
+  useEffect(()=>{
+    refetch()
+  },[])
 
   useEffect(() => {
     setReservations(reservations => data?.me.reservations || []);
