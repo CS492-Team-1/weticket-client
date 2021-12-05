@@ -1,5 +1,4 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 
 import { gql } from '@apollo/client';
 
@@ -25,7 +24,6 @@ gql`
 `;
 
 export const LoginContainer: React.FC = () => {
-  const history = useHistory();
 
   const [loginMutation, { loading: loginLoading }] = useLoginMutation();
   const [registerMutation, { loading: registerLoading }] =
@@ -64,7 +62,6 @@ export const LoginContainer: React.FC = () => {
   /**
    * 회원가입
    * 실패시, 에러메시지를 띄웁니다.
-   * TODO : 성공시 핸들링
    * @param username 아이디
    * @param password 패스워드
    */
@@ -92,12 +89,6 @@ export const LoginContainer: React.FC = () => {
     }
   };
 
-  //임시 로그인 메소드 (추후 삭제 예정)
-  const _tempLogin = () => {
-    login('test', 'test');
-  };
-
-  //TODO : prop으로 필요한 데이터 및 메소드 전달
   return <LoginPresenter 
             login={login} 
             loginLoading= {loginLoading} 

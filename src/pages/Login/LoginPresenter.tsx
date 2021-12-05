@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { colors } from '../../assets/styles/colors';
-import { Login } from '.';
 import { Spinner } from '../../components';
 
-//TODO : prop type 정의
 type LoginPresenterProps = {
   loginLoading: boolean;
   registerLoading: boolean;
@@ -56,7 +54,6 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
 
   const onSubmit : SubmitHandler<LoginProps> = (data) =>{
     const {username, password} = data;
-
     login(username, password);
     loginReset({username: '', password: ''});
 
