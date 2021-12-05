@@ -1,22 +1,13 @@
 import React from 'react';
 
-import { gql } from '@apollo/client';
-
-import { useCancelReservationMutation } from '../../utils/client';
+import { useCancelReservation, useReserveSeat } from '../../hooks';
 import { ReservationsPresenter } from './ReservationsPresenter';
 
-gql`
-  mutation cancelReservation($input: CancelReservationInput!) {
-    cancelReservation(input: $input) {
-      ok
-      error
-    }
-  }
-`;
-
 export const ReservationsContainer: React.FC = () => {
-  const [cancelReservationMutation, { loading }] =
-    useCancelReservationMutation();
+  const { cancelReservation: cancelReservationMutation } =
+    useCancelReservation();
+
+  const { reserveSeat: reserveSeatMutation } = useReserveSeat();
 
   /**
    * 예약 취소
@@ -26,24 +17,42 @@ export const ReservationsContainer: React.FC = () => {
    */
   const cancelReservation = async (reservationId: string) => {
     try {
-      const { data } = await cancelReservationMutation({
-        variables: {
-          input: {
-            reservationId,
-          },
-        },
-      });
+      const response = await cancelReservationMutation(reservationId);
 
-      if (data?.cancelReservation.ok) {
+      if (response?.data?.cancelReservation.ok) {
         window.alert('예약이 취소되었습니다.');
-      } else if (data?.cancelReservation.error) {
-        window.alert(data.cancelReservation.error);
+      } else if (response?.data?.cancelReservation.error) {
+        window.alert(response.data.cancelReservation.error);
       }
     } catch (err) {
       window.alert(err);
     }
   };
 
-  //TODO : prop으로 필요한 데이터 및 메소드 전달
-  return <ReservationsPresenter />;
+  /**
+   * 예약 확정
+   * 성공시, 예약 확정 alert 띄움
+   * 실패시, 에러메시지 alert 띄움
+   * @param reservationId  예약 아이디
+   */
+  const reserveSeat = async (reservationId: string) => {
+    try {
+      const response = await reserveSeatMutation(reservationId);
+
+      if (response?.data?.reserveSeat.ok) {
+        window.alert('예약이 확정되었습니다.');
+      } else if (response?.data?.reserveSeat.error) {
+        window.alert(response.data.reserveSeat.error);
+      }
+    } catch (err) {
+      window.alert(err);
+    }
+  };
+
+  return (
+    <ReservationsPresenter
+      reserveSeat={reserveSeat}
+      cancelReservation={cancelReservation}
+    />
+  );
 };
