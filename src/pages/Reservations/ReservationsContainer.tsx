@@ -31,11 +31,9 @@ gql`
 `;
 
 export const ReservationsContainer: React.FC = () => {
-  const [cancelReservationMutation, { loading: cancelReservationLoading }] =
-    useCancelReservationMutation();
+  const [cancelReservationMutation] = useCancelReservationMutation();
 
-  const [reserveSeatMutation, { loading: reserveSeatLoading }] =
-    useReserveSeatMutation();
+  const [reserveSeatMutation] = useReserveSeatMutation();
 
   /**
    * 예약 취소
