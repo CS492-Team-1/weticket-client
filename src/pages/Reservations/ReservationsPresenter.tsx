@@ -21,7 +21,6 @@ gql`
   }
 `;
 
-//TODO : prop type 정의
 type ReservationPresenterProps = {
   cancelReservation: (reservationId: string) => Promise<void>;
   reserveSeat: (reservationId: string) => Promise<void>;
@@ -31,9 +30,11 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
   cancelReservation,
   reserveSeat,
 }) => {
-  const { data, loading, refetch } = useMeQuery({ notifyOnNetworkStatusChange : true });
+  const { data, loading, refetch } = useMeQuery({
+    notifyOnNetworkStatusChange: true,
+  });
   const [clicked, setClicked] = useState('');
-  const [modal, setModal] = useState({isOpen:false, isCancel:false});
+  const [modal, setModal] = useState({ isOpen: false, isCancel: false });
   const [reservations, setReservations] = useState(data?.me.reservations || []);
   const scrollY = useRef(0);
   const preempted = reservations.filter(
@@ -43,13 +44,14 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
   const reserved = reservations.filter(
     reservation => reservation.status === ReservationStatus.Reserved,
   );
-  
-  useEffect(()=>{
-    refetch()
-  },[])
 
   useEffect(() => {
-    setReservations(reservations => data?.me.reservations || []);
+    refetch();
+  }, [refetch]);
+
+  useEffect(() => {
+    setReservations(data?.me.reservations || []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
   const timeParser = (
@@ -63,40 +65,67 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
     return result;
   };
 
-  const ReservationModal:React.FC<{reservationID:string, isCancel:boolean}> = ({reservationID,isCancel})=>{
-    useEffect(()=>{
-      return ()=>{window.scrollTo(0, scrollY.current);}
-    }
-    ,[])
-    return <>
-    <ModalLid>
-      <Text className="modalLid">공연명</Text>
-    </ModalLid>
-    <ModalBottom>
-      <Text className = 'message'>예약을 {isCancel?"취소":"확정"}하시겠습니까?</Text>
-      <Button className='modalYes' onClick={async()=>{
-        isCancel? await cancelReservation(reservationID):await reserveSeat(reservationID);
-        setClicked('');
-        isCancel? setReservations(reservations =>
-          reservations.filter(
-            reserved => reserved.id !== reservationID,
-          ),
-        ):setReservations(reservations => {
-          let confirmed = Object.assign({}, reservations.find(reserved => reserved.id === reservationID));
-          confirmed.status = ReservationStatus.Reserved;
-          return [
-            ...reservations.filter(
-              preempted => preempted.id !== reservationID,
-            ),
-            confirmed,
-          ];
-        });
-        setModal({isOpen:false, isCancel:false});
-        }}>예</Button>
-      <Button className='modalNo'onClick={()=>setModal({isOpen:false, isCancel:false})}>아니오</Button>
-    </ModalBottom>
-    </> 
-  }
+  const ReservationModal: React.FC<{
+    reservationID: string;
+    isCancel: boolean;
+  }> = ({ reservationID, isCancel }) => {
+    useEffect(() => {
+      return () => {
+        window.scrollTo(0, scrollY.current);
+      };
+    }, []);
+    return (
+      <>
+        <ModalLid>
+          <Text className="modalLid">공연명</Text>
+        </ModalLid>
+        <ModalBottom>
+          <Text className="message">
+            예약을 {isCancel ? '취소' : '확정'}하시겠습니까?
+          </Text>
+          <Button
+            className="modalYes"
+            onClick={async () => {
+              isCancel
+                ? await cancelReservation(reservationID)
+                : await reserveSeat(reservationID);
+              setClicked('');
+              isCancel
+                ? setReservations(reservations =>
+                    reservations.filter(
+                      reserved => reserved.id !== reservationID,
+                    ),
+                  )
+                : setReservations(reservations => {
+                    let confirmed = Object.assign(
+                      {},
+                      reservations.find(
+                        reserved => reserved.id === reservationID,
+                      ),
+                    );
+                    confirmed.status = ReservationStatus.Reserved;
+                    return [
+                      ...reservations.filter(
+                        preempted => preempted.id !== reservationID,
+                      ),
+                      confirmed,
+                    ];
+                  });
+              setModal({ isOpen: false, isCancel: false });
+            }}
+          >
+            예
+          </Button>
+          <Button
+            className="modalNo"
+            onClick={() => setModal({ isOpen: false, isCancel: false })}
+          >
+            아니오
+          </Button>
+        </ModalBottom>
+      </>
+    );
+  };
 
   const ReservationBlock = (
     reservation: {
@@ -125,23 +154,23 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
                   <Text className="seat">
                     선택 좌석
                     <br />
-                    {reservation.seats.join(", ")}
+                    {reservation.seats.join(', ')}
                   </Text>
                   <Button
                     className="reservation"
                     onClick={() => {
                       scrollY.current = window.scrollY;
-                      setModal({isOpen:true, isCancel:false});
+                      setModal({ isOpen: true, isCancel: false });
                     }}
                   >
                     예약 확정
                   </Button>
-                  
+
                   <Button
                     className="cancelPreempted"
                     onClick={() => {
-                      scrollY.current= window.scrollY;
-                      setModal({isOpen:true, isCancel:true});
+                      scrollY.current = window.scrollY;
+                      setModal({ isOpen: true, isCancel: true });
                     }}
                   >
                     예약 취소
@@ -153,13 +182,13 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
                   <Text className="seat">
                     선택 좌석
                     <br />
-                    {reservation.seats.join(", ")}
+                    {reservation.seats.join(', ')}
                   </Text>
                   <Button
                     className="cancelReserved"
                     onClick={() => {
-                      scrollY.current= window.scrollY;
-                      setModal({isOpen:true, isCancel:true});
+                      scrollY.current = window.scrollY;
+                      setModal({ isOpen: true, isCancel: true });
                     }}
                   >
                     예약 취소
@@ -172,24 +201,40 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
     return result;
   };
 
-  const loadingScreen = <SContainer><Loader><Spinner /></Loader></SContainer>;
+  const loadingScreen = (
+    <SContainer>
+      <Loader>
+        <Spinner />
+      </Loader>
+    </SContainer>
+  );
 
   const LoadedScreen = (
-      <SContainer>
-        {reservations.length === 0 && <ReservationsText>완료된 예약이 없습니다</ReservationsText>}
-        {preempted.length !== 0 && <ReservationsText>예약 미완료</ReservationsText>}
-        <ReservationsWrapper>{preempted.map(reservation => ReservationBlock(reservation))}</ReservationsWrapper>
-        {reserved.length !== 0 && <ReservationsText>예약 완료</ReservationsText>}
-        <ReservationsWrapper>{reserved.map(reservation => ReservationBlock(reservation))}</ReservationsWrapper>
-      </SContainer>
+    <SContainer>
+      {reservations.length === 0 && (
+        <ReservationsText>완료된 예약이 없습니다</ReservationsText>
+      )}
+      {preempted.length !== 0 && (
+        <ReservationsText>예약 미완료</ReservationsText>
+      )}
+      <ReservationsWrapper>
+        {preempted.map(reservation => ReservationBlock(reservation))}
+      </ReservationsWrapper>
+      {reserved.length !== 0 && <ReservationsText>예약 완료</ReservationsText>}
+      <ReservationsWrapper>
+        {reserved.map(reservation => ReservationBlock(reservation))}
+      </ReservationsWrapper>
+    </SContainer>
   );
 
   return (
     <>
-    {modal.isOpen&&(<ReservationModal reservationID={clicked} isCancel={modal.isCancel}/>)}
-    <BackgroundBlur isVisible={modal.isOpen}>
-      {loading ? loadingScreen : LoadedScreen}
-    </BackgroundBlur>
+      {modal.isOpen && (
+        <ReservationModal reservationID={clicked} isCancel={modal.isCancel} />
+      )}
+      <BackgroundBlur isVisible={modal.isOpen}>
+        {loading ? loadingScreen : LoadedScreen}
+      </BackgroundBlur>
     </>
   );
 };
@@ -252,7 +297,7 @@ const Text = styled.h1<{ className: string }>`
   padding-left: 8px;
   font-size: 10px;
   @media (min-width: 1100px) {
-    font-size:16px;
+    font-size: 16px;
   }
   ${props => props.className && handleText(props.className)}
 `;
@@ -303,7 +348,7 @@ const Button = styled.button<{ className: string }>`
   @media (min-width: 1100px) {
     margin-top: 96px;
     height: 62px;
-    font-size:20px;
+    font-size: 20px;
   }
   ${props => props.className && handleButton(props.className)}
 `;
@@ -324,7 +369,7 @@ const SContainer = styled.div`
   min-height: calc(100vh - 20px);
   @media (min-width: 1100px) {
     width: 1100px;
-    border-radius: 12px;  
+    border-radius: 12px;
     background-color: ${colors.white};
     row-gap: 20px;
     min-height: 0;
@@ -333,56 +378,57 @@ const SContainer = styled.div`
   }
 `;
 
-const BackgroundBlur = styled.div<{isVisible:boolean}>`
-    position: absolute;
-    width:100%;
-    z-index: 0;
-    @media (min-width: 1100px) {
-      padding-top:80px;
-      display: box;
-      min-height: 100%;
-      background-color: ${colors.primary};
-      box-sizing: border-box;
-      justify-content: center;
-    }
-    ${props=>props.isVisible&&`backdrop-filter: blur(8px);opacity:0.2;pointer-events:none;  position:fixed; top:-${window.scrollY}px;`}
+const BackgroundBlur = styled.div<{ isVisible: boolean }>`
+  position: absolute;
+  width: 100%;
+  z-index: 0;
+  @media (min-width: 1100px) {
+    padding-top: 80px;
+    display: box;
+    min-height: 100%;
+    background-color: ${colors.primary};
+    box-sizing: border-box;
+    justify-content: center;
+  }
+  ${props =>
+    props.isVisible &&
+    `backdrop-filter: blur(8px);opacity:0.2;pointer-events:none;  position:fixed; top:-${window.scrollY}px;`}
 `;
-
 
 const ReservationsText = styled.h1`
   font-size: 16px;
   @media (min-width: 1100px) {
     font-size: 24px;
   }
-`
+`;
 const ModalLid = styled.div`
   display: flex;
-  align-items:center;
-  position:fixed;
-  width:280px;
-  height:57px;
+  align-items: center;
+  position: fixed;
+  width: 280px;
+  height: 57px;
   background: ${colors.primary};
   z-index: 30;
   border-radius: 6px 6px 0px 0px;
-  top:35%;
+  top: 35%;
   left: calc(50vw - 140px);
   @media (min-width: 1100px) {
     left: calc(50vw - 200px);
     width: 400px;
     height: 100px;
   }
-`
+`;
 const Loader = styled.div`
   position: relative;
   width: 100%;
   height: 300px;
-`
+`;
 const ModalBottom = styled.div`
-  position:fixed;
+  position: fixed;
   box-sizing: border-box;
-  width:280px;
-  height:215px;
-  top:35%;
+  width: 280px;
+  height: 215px;
+  top: 35%;
   background: ${colors.white};
   border-radius: 6px;
   z-index: 29;
@@ -393,13 +439,13 @@ const ModalBottom = styled.div`
   padding-top: 63px;
   padding-bottom: 6px;
   grid-template:
-  "message message" 1fr
-  "buttonYes buttonNo" 1fr
-  /1fr 1fr; 
+    'message message' 1fr
+    'buttonYes buttonNo' 1fr
+    /1fr 1fr;
   gap: 6px;
   padding-left: 6px;
   padding-right: 6px;
-  justify-items:center;
+  justify-items: center;
   @media (min-width: 1100px) {
     left: calc(50vw - 200px);
     width: 400px;
@@ -407,16 +453,16 @@ const ModalBottom = styled.div`
     padding-top: 108px;
     font-size: 32px;
   }
-`
+`;
 const ReservationsWrapper = styled.div`
   display: flex;
   row-gap: 8px;
   flex-direction: column;
   margin-bottom: 8px;
   @media (min-width: 1100px) {
-    display:grid;
+    display: grid;
     row-gap: 16px;
-    grid-template-columns: repeat(3,minmax(350px, auto));
+    grid-template-columns: repeat(3, minmax(350px, auto));
     margin-bottom: 16px;
   }
-`
+`;
