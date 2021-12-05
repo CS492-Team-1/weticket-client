@@ -19,3 +19,6 @@
 ## Tasks & Milestones
 
 checkout [issues](https://github.com/CS492-Team-1/weticket-client/issues)
+
+## Wiki
+https://github.com/CS492-Team-1/weticket-client/wiki/%08WeTicket-Wiki
