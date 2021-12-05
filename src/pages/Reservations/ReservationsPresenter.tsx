@@ -172,7 +172,7 @@ export const ReservationsPresenter: React.FC<ReservationPresenterProps> = ({
     return result;
   };
 
-  const loadingScreen = <Spinner />;
+  const loadingScreen = <SContainer><Loader><Spinner /></Loader></SContainer>;
 
   const LoadedScreen = (
       <SContainer>
@@ -320,12 +320,15 @@ const SContainer = styled.div`
   padding-top: 8px;
   align-items: center;
   z-index: -1;
+  box-sizing: border-box;
+  min-height: calc(100vh - 20px);
   @media (min-width: 1100px) {
     width: 1100px;
     border-radius: 12px;  
     background-color: ${colors.white};
-    box-sizing: border-box;
     row-gap: 20px;
+    min-height: 0;
+    margin: auto;
     margin-bottom: 40px;
   }
 `;
@@ -336,10 +339,11 @@ const BackgroundBlur = styled.div<{isVisible:boolean}>`
     z-index: 0;
     @media (min-width: 1100px) {
       padding-top:80px;
+      display: box;
+      min-height: 100%;
       background-color: ${colors.primary};
       box-sizing: border-box;
       justify-content: center;
-      display:flex;
     }
     ${props=>props.isVisible&&`backdrop-filter: blur(8px);opacity:0.2;pointer-events:none;  position:fixed; top:-${window.scrollY}px;`}
 `;
@@ -368,7 +372,11 @@ const ModalLid = styled.div`
     height: 100px;
   }
 `
-
+const Loader = styled.div`
+  position: relative;
+  width: 100%;
+  height: 300px;
+`
 const ModalBottom = styled.div`
   position:fixed;
   box-sizing: border-box;
