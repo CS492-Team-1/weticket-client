@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import styled from 'styled-components';
-import { useForm, SubmitHandler } from 'react-hook-form';
+
 import { colors } from '../../assets/styles/colors';
 import { Spinner } from '../../components';
 
 type LoginPresenterProps = {
   loginLoading: boolean;
   registerLoading: boolean;
-  login: (username: string, password:string) => void;
-  register: (username: string, password:string, togglePage: ()=>void ) => void;
+  login: (username: string, password: string) => void;
+  register: (
+    username: string,
+    password: string,
+    togglePage: () => void,
+  ) => void;
 };
 
 interface StyledProps {
@@ -21,69 +26,85 @@ type LoginProps = {
 };
 
 type RegisterProps = {
-  username : string;
+  username: string;
   password: string;
   confirmPassword: string;
 };
 
-export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoading, register, registerLoading}) => {
+export const LoginPresenter: React.FC<LoginPresenterProps> = ({
+  login,
+  loginLoading,
+  register,
+  registerLoading,
+}) => {
+  const {
+    register: loginInputs,
+    handleSubmit: loginSubmit,
+    formState: { errors: loginErrors },
+    reset: loginReset,
+  } = useForm<LoginProps>();
 
   const {
-    register: loginInputs, 
-    handleSubmit:loginSubmit, 
-    formState: { errors: loginErrors }, 
-    reset: loginReset} = useForm<LoginProps>();
-
-  const {
-    register: registerInputs, 
-    handleSubmit: registerSubmit, 
-    formState: { errors: registerErrors }, 
+    register: registerInputs,
+    handleSubmit: registerSubmit,
+    formState: { errors: registerErrors },
     reset: registerReset,
-    watch: registerWatch} = useForm<RegisterProps>();
+    watch: registerWatch,
+  } = useForm<RegisterProps>();
 
-
-  const watchPassword = registerWatch("password", "");
+  const watchPassword = registerWatch('password', '');
 
   const [isLogin, setLogin] = useState(true);
 
-  const togglePage = () =>{
-    loginReset({username: '', password: ''});
-    registerReset({username: '', password: '', confirmPassword: ''});
+  const togglePage = () => {
+    loginReset({ username: '', password: '' });
+    registerReset({ username: '', password: '', confirmPassword: '' });
     setLogin(!isLogin);
   };
 
-  const onSubmit : SubmitHandler<LoginProps> = (data) =>{
-    const {username, password} = data;
+  const onSubmit: SubmitHandler<LoginProps> = data => {
+    const { username, password } = data;
     login(username, password);
-    loginReset({username: '', password: ''});
-
+    loginReset({ username: '', password: '' });
   };
 
-  const onSubmitRegister : SubmitHandler<RegisterProps> = (data) =>{
-    const {username, password} = data;
+  const onSubmitRegister: SubmitHandler<RegisterProps> = data => {
+    const { username, password } = data;
     register(username, password, togglePage);
-    registerReset({username: '', password: '', confirmPassword: ''});
-  }
+    registerReset({ username: '', password: '', confirmPassword: '' });
+  };
 
   const LoginPage = (
     <SContainer>
       <Title>WeTicket</Title>
-      <LogInContainer height = "430px">
+      <LogInContainer height="430px">
         <SubTitle>LogIn</SubTitle>
-        <HorizonLine/>
-        <LoginForm onSubmit= {loginSubmit(onSubmit)}>
+        <HorizonLine />
+        <LoginForm onSubmit={loginSubmit(onSubmit)}>
+          <IDBox
+            {...loginInputs('username', {
+              required: { value: true, message: 'ID를 입력해주세요!' },
+            })}
+          ></IDBox>
+          <ErrorMessages>
+            {loginErrors.username && loginErrors.username?.message}
+          </ErrorMessages>
 
-          <IDBox {...loginInputs("username", {required: {value: true, message: "ID를 입력해주세요!"}})}></IDBox>
-          <ErrorMessages>{loginErrors.username && loginErrors.username?.message}</ErrorMessages>
-
-          <PwBox {...loginInputs("password", {required: {value: true, message: "비밀번호를 입력해주세요!"}})}></PwBox>
-          <ErrorMessages>{ !loginErrors.username && loginErrors.password && loginErrors.password?.message}</ErrorMessages>
+          <PwBox
+            {...loginInputs('password', {
+              required: { value: true, message: '비밀번호를 입력해주세요!' },
+            })}
+          ></PwBox>
+          <ErrorMessages>
+            {!loginErrors.username &&
+              loginErrors.password &&
+              loginErrors.password?.message}
+          </ErrorMessages>
 
           <SubmitButton>로그인</SubmitButton>
 
           <Messages>계정이 없으신가요?</Messages>
-          <ToggleButton onClick ={togglePage}>회원가입</ToggleButton>
-
+          <ToggleButton onClick={togglePage}>회원가입</ToggleButton>
         </LoginForm>
       </LogInContainer>
     </SContainer>
@@ -92,53 +113,84 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({ login, loginLoad
   const RegisterPage = (
     <SContainer>
       <Title>WeTicket</Title>
-      <LogInContainer height = "500px">
+      <LogInContainer height="500px">
         <SubTitle>회원가입</SubTitle>
-        <HorizonLine/>
-        <LoginForm onSubmit= {registerSubmit(onSubmitRegister)}>
+        <HorizonLine />
+        <LoginForm onSubmit={registerSubmit(onSubmitRegister)}>
+          <IDBox
+            {...registerInputs('username', {
+              required: { value: true, message: 'ID를 입력해주세요!' },
+              maxLength: {
+                value: 15,
+                message: 'ID는 15글자 이하로 설정해주세요',
+              },
+              pattern: {
+                value: /^[a-z0-9]+$/,
+                message: '알파벳 소문자, 숫자만 사용해주세요',
+              },
+            })}
+          ></IDBox>
+          <ErrorMessages>
+            {registerErrors.username && registerErrors.username?.message}
+          </ErrorMessages>
 
-          <IDBox {...registerInputs("username", {
-                      required: {value: true, message: "ID를 입력해주세요!"},
-                      maxLength: {value: 15, message: "ID는 15글자 이하로 설정해주세요"}, 
-                      pattern: {value: /^[a-z0-9]+$/, message: "알파벳 소문자, 숫자만 사용해주세요"}}
-                      )}>            
-          </IDBox> 
-          <ErrorMessages>{registerErrors.username && registerErrors.username?.message}</ErrorMessages>
+          <PwBox
+            {...registerInputs('password', {
+              required: { value: true, message: '비밀번호를 입력해주세요!' },
+              minLength: {
+                value: 5,
+                message: '비밀번호는 5~15글자로 설정해주세요',
+              },
+              maxLength: {
+                value: 15,
+                message: '비밀번호는 5~15글자로 설정해주세요',
+              },
+              pattern: {
+                value: /^[a-zA-Z0-9]+$/,
+                message: '알파벳, 숫자만 사용해주세요',
+              },
+            })}
+          ></PwBox>
+          <ErrorMessages>
+            {!registerErrors.username &&
+              registerErrors.password &&
+              registerErrors.password?.message}
+          </ErrorMessages>
 
-          <PwBox {...registerInputs("password", {
-                      required: {value: true, message: "비밀번호를 입력해주세요!"},
-                      minLength: {value: 5, message: "비밀번호는 5~15글자로 설정해주세요"},
-                      maxLength: {value: 15, message: "비밀번호는 5~15글자로 설정해주세요"},
-                      pattern: {value: /^[a-zA-Z0-9]+$/, message: "알파벳, 숫자만 사용해주세요"}}
-                      )}>            
-          </PwBox>
-          <ErrorMessages>{ (!registerErrors.username) && registerErrors.password && registerErrors.password?.message}</ErrorMessages>
-
-          <CPwBox {...registerInputs("confirmPassword", {
-                        validate: value => value === watchPassword || "비밀번호를 확인해주세요!"
-                        })}>
-          </CPwBox>
-          <ErrorMessages>{ !(registerErrors.username || registerErrors.password) 
-                        && registerErrors.confirmPassword 
-                        && registerErrors.confirmPassword?.message}</ErrorMessages>
+          <CPwBox
+            {...registerInputs('confirmPassword', {
+              validate: value =>
+                value === watchPassword || '비밀번호를 확인해주세요!',
+            })}
+          ></CPwBox>
+          <ErrorMessages>
+            {!(registerErrors.username || registerErrors.password) &&
+              registerErrors.confirmPassword &&
+              registerErrors.confirmPassword?.message}
+          </ErrorMessages>
 
           <SubmitButton>회원가입</SubmitButton>
 
           <Messages>계정이 이미 있으신가요?</Messages>
-          <ToggleButton onClick ={togglePage} >로그인</ToggleButton>
-
+          <ToggleButton onClick={togglePage}>로그인</ToggleButton>
         </LoginForm>
       </LogInContainer>
     </SContainer>
   );
 
-  const LoadingPage = (<SContainer>
-                        <Spinner />
-                      </SContainer>);
+  const LoadingPage = (
+    <SContainer>
+      <Spinner />
+    </SContainer>
+  );
 
   return (
     <>
-    {(loginLoading || registerLoading) ? LoadingPage : (isLogin ?  LoginPage : RegisterPage)}
+      {loginLoading || registerLoading
+        ? LoadingPage
+        : isLogin
+        ? LoginPage
+        : RegisterPage}
     </>
   );
 };
@@ -244,7 +296,7 @@ const SubmitButton = styled(Button)`
   margin-bottom: 20px;
 `;
 
-const ToggleButton = styled(Button).attrs({type:"button"})`
+const ToggleButton = styled(Button).attrs({ type: 'button' })`
   color: ${colors.black};
   border-color: ${colors.black};
   border-style: solid;
@@ -286,7 +338,12 @@ const InputBox = styled.input`
   }
 `;
 
-
-const IDBox = styled(InputBox).attrs({placeholder: "ID"})``;
-const PwBox = styled(InputBox).attrs({placeholder: "password", type:"password"})``;
-const CPwBox = styled(InputBox).attrs({placeholder: "confirm password", type:"password"})``;
+const IDBox = styled(InputBox).attrs({ placeholder: 'ID' })``;
+const PwBox = styled(InputBox).attrs({
+  placeholder: 'password',
+  type: 'password',
+})``;
+const CPwBox = styled(InputBox).attrs({
+  placeholder: 'confirm password',
+  type: 'password',
+})``;

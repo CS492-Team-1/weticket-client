@@ -1,39 +1,13 @@
 import React from 'react';
 
-import { gql } from '@apollo/client';
-
-import {
-  useCancelReservationMutation,
-  useReserveSeatMutation,
-} from '../../utils/client';
+import { useCancelReservation, useReserveSeat } from '../../hooks';
 import { ReservationsPresenter } from './ReservationsPresenter';
 
-gql`
-  mutation cancelReservation($input: CancelReservationInput!) {
-    cancelReservation(input: $input) {
-      ok
-      error
-    }
-  }
-
-  mutation reserveSeat($input: ReserveSeatInput!) {
-    reserveSeat(input: $input) {
-      ok
-      error
-      reservation {
-        id
-        time
-        status
-        preemptedAt
-      }
-    }
-  }
-`;
-
 export const ReservationsContainer: React.FC = () => {
-  const [cancelReservationMutation] = useCancelReservationMutation();
+  const { cancelReservation: cancelReservationMutation } =
+    useCancelReservation();
 
-  const [reserveSeatMutation] = useReserveSeatMutation();
+  const { reserveSeat: reserveSeatMutation } = useReserveSeat();
 
   /**
    * 예약 취소
@@ -43,18 +17,12 @@ export const ReservationsContainer: React.FC = () => {
    */
   const cancelReservation = async (reservationId: string) => {
     try {
-      const { data } = await cancelReservationMutation({
-        variables: {
-          input: {
-            reservationId,
-          },
-        },
-      });
+      const response = await cancelReservationMutation(reservationId);
 
-      if (data?.cancelReservation.ok) {
+      if (response?.data?.cancelReservation.ok) {
         window.alert('예약이 취소되었습니다.');
-      } else if (data?.cancelReservation.error) {
-        window.alert(data.cancelReservation.error);
+      } else if (response?.data?.cancelReservation.error) {
+        window.alert(response.data.cancelReservation.error);
       }
     } catch (err) {
       window.alert(err);
@@ -69,18 +37,12 @@ export const ReservationsContainer: React.FC = () => {
    */
   const reserveSeat = async (reservationId: string) => {
     try {
-      const { data } = await reserveSeatMutation({
-        variables: {
-          input: {
-            reservationId,
-          },
-        },
-      });
+      const response = await reserveSeatMutation(reservationId);
 
-      if (data?.reserveSeat.ok) {
+      if (response?.data?.reserveSeat.ok) {
         window.alert('예약이 확정되었습니다.');
-      } else if (data?.reserveSeat.error) {
-        window.alert(data.reserveSeat.error);
+      } else if (response?.data?.reserveSeat.error) {
+        window.alert(response.data.reserveSeat.error);
       }
     } catch (err) {
       window.alert(err);

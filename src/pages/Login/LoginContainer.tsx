@@ -24,7 +24,6 @@ gql`
 `;
 
 export const LoginContainer: React.FC = () => {
-
   const [loginMutation, { loading: loginLoading }] = useLoginMutation();
   const [registerMutation, { loading: registerLoading }] =
     useRegisterMutation();
@@ -36,7 +35,7 @@ export const LoginContainer: React.FC = () => {
    * @param username 아이디
    * @param password 패스워드
    */
-  
+
   const login = async (username: string, password: string) => {
     try {
       const { data } = await loginMutation({
@@ -65,7 +64,11 @@ export const LoginContainer: React.FC = () => {
    * @param username 아이디
    * @param password 패스워드
    */
-  const register = async (username: string, password: string,  togglePage: ()=>void) => {
+  const register = async (
+    username: string,
+    password: string,
+    togglePage: () => void,
+  ) => {
     try {
       const { data } = await registerMutation({
         variables: {
@@ -77,10 +80,8 @@ export const LoginContainer: React.FC = () => {
       });
 
       if (data?.register.ok) {
-        
         togglePage();
-        window.alert("회원가입에 성공했습니다!");
-
+        window.alert('회원가입에 성공했습니다!');
       } else if (data?.register.error) {
         window.alert(data.register.error);
       }
@@ -89,10 +90,12 @@ export const LoginContainer: React.FC = () => {
     }
   };
 
-  return <LoginPresenter 
-            login={login} 
-            loginLoading= {loginLoading} 
-            register = {register} 
-            registerLoading = {registerLoading}
-          />;
+  return (
+    <LoginPresenter
+      login={login}
+      loginLoading={loginLoading}
+      register={register}
+      registerLoading={registerLoading}
+    />
+  );
 };

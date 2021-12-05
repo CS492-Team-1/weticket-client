@@ -1,35 +1,28 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 
-import {
-  useCancelReservationMutation,
-  useReserveSeatMutation,
-} from '../../utils/client';
+import { useCancelReservation, useReserveSeat } from '../../hooks';
 import { ReservationConfirmPresenter } from './ReservationConfirmPresenter';
 
 export const ReservationConfirmContainer: React.FC = () => {
   const history = useHistory();
 
-  const [reserveSeatMutation, { loading: reserveLoading }] =
-    useReserveSeatMutation();
-  const [cancelReservationMutation, { loading: cancelLoading }] =
-    useCancelReservationMutation();
+  const { reserveSeat: reserveSeatMutation, loading: reserveLoading } =
+    useReserveSeat();
+  const {
+    cancelReservation: cancelReservationMutation,
+    loading: cancelLoading,
+  } = useCancelReservation();
 
   const reserveSeat = async (reservationId: string) => {
     try {
-      const { data } = await reserveSeatMutation({
-        variables: {
-          input: {
-            reservationId,
-          },
-        },
-      });
+      const response = await reserveSeatMutation(reservationId);
 
-      if (data?.reserveSeat.ok) {
+      if (response?.data?.reserveSeat.ok) {
         window.alert('예약이 확정되었습니다.');
         history.push('/reservations');
-      } else if (data?.reserveSeat.error) {
-        window.alert(data.reserveSeat.error);
+      } else if (response?.data?.reserveSeat.error) {
+        window.alert(response.data.reserveSeat.error);
         history.push('/reservation');
       }
     } catch (err) {
@@ -39,18 +32,12 @@ export const ReservationConfirmContainer: React.FC = () => {
 
   const cancelReservation = async (reservationId: string) => {
     try {
-      const { data } = await cancelReservationMutation({
-        variables: {
-          input: {
-            reservationId,
-          },
-        },
-      });
-      if (data?.cancelReservation.ok) {
+      const response = await cancelReservationMutation(reservationId);
+      if (response?.data?.cancelReservation.ok) {
         window.alert('예약이 취소되었습니다.');
         history.push('/reservation');
-      } else if (data?.cancelReservation.error) {
-        window.alert(data?.cancelReservation.error);
+      } else if (response?.data?.cancelReservation.error) {
+        window.alert(response?.data?.cancelReservation.error);
         history.push('/reservation');
       }
     } catch (err) {
